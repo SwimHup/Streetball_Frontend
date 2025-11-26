@@ -18,14 +18,10 @@ function App() {
           path="/register"
           element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/" />}
         />
-        <Route
-          path="/"
-          element={isAuthenticated ? <MapPage /> : <Navigate to="/login" />}
-        />
+        <Route path="/" element={<MapPage />} />
       </Routes>
     </div>
   );
 }
 
 export default App;
-

@@ -7,13 +7,14 @@ import { gameApi } from '@/apis/gameApi';
 import { authApi } from '@/apis/authApi';
 import GameModal from '@/components/GameModal';
 import CreateGameModal from '@/components/CreateGameModal';
+import { useNavigate } from 'react-router-dom';
 
 export default function MapPage() {
-  const { user, logout, updateUserLocation } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { games, selectedGame, setGames, setSelectedGame } = useGameStore();
   const { location, error: locationError } = useGeolocation(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
+  const navigate = useNavigate();
   // 기본 위치 (서울 시청)
   const defaultLocation = { latitude: 37.5665, longitude: 126.978 };
   const currentLocation = location || defaultLocation;
@@ -27,14 +28,14 @@ export default function MapPage() {
   useEffect(() => {
     if (!location) return;
 
-    const updateLocation = async () => {
-      try {
-        await authApi.updateLocation(location.latitude, location.longitude);
-        updateUserLocation(location.latitude, location.longitude);
-      } catch (error) {
-        console.error('위치 업데이트 실패:', error);
-      }
-    };
+    // const updateLocation = async () => {
+    //   try {
+    //     await authApi.updateLocation(location.latitude, location.longitude);
+    //     updateUserLocation(location.latitude, location.longitude);
+    //   } catch (error) {
+    //     console.error('위치 업데이트 실패:', error);
+    //   }
+    // };
 
     const fetchNearbyGames = async () => {
       try {
@@ -52,7 +53,7 @@ export default function MapPage() {
       }
     };
 
-    updateLocation();
+    // updateLocation();
     fetchNearbyGames();
   }, [location]);
 
@@ -66,7 +67,12 @@ export default function MapPage() {
   }, [games]);
 
   const handleLogout = () => {
-    logout();
+    try {
+      logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
   };
 
   const handleRefresh = async () => {
@@ -96,14 +102,9 @@ export default function MapPage() {
       <div className="absolute top-0 left-0 right-0 bg-white shadow-md p-4 flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">🏀 Streetball</h1>
-          <p className="text-sm text-gray-600">
-            {user?.name}님 환영합니다
-          </p>
+          <p className="text-sm text-gray-600">{user?.name}님 환영합니다</p>
         </div>
-        <button
-          onClick={handleLogout}
-          className="text-sm text-gray-600 hover:text-gray-900"
-        >
+        <button onClick={handleLogout} className="text-sm text-gray-600 hover:text-gray-900">
           로그아웃
         </button>
       </div>
@@ -112,9 +113,7 @@ export default function MapPage() {
       {locationError && (
         <div className="absolute top-20 left-4 right-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
           <p className="text-sm text-yellow-800">{locationError}</p>
-          <p className="text-xs text-yellow-700 mt-1">
-            기본 위치(서울 시청)를 사용합니다.
-          </p>
+          <p className="text-xs text-yellow-700 mt-1">기본 위치(서울 시청)를 사용합니다.</p>
         </div>
       )}
 
@@ -126,10 +125,7 @@ export default function MapPage() {
         >
           🔄 새로고침
         </button>
-        <button
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex-1 btn-primary shadow-lg"
-        >
+        <button onClick={() => setIsCreateModalOpen(true)} className="flex-1 btn-primary shadow-lg">
           ➕ 게임 만들기
         </button>
       </div>
@@ -137,20 +133,13 @@ export default function MapPage() {
       {/* 게임 정보 카드 (하단) */}
       {games.length > 0 && (
         <div className="absolute bottom-32 left-4 right-4 bg-white rounded-lg shadow-lg p-4">
-          <h3 className="font-bold text-gray-900 mb-2">
-            근처 게임 {games.length}개
-          </h3>
-          <div className="text-sm text-gray-600">
-            지도의 핀을 클릭하여 게임 정보를 확인하세요
-          </div>
+          <h3 className="font-bold text-gray-900 mb-2">근처 게임 {games.length}개</h3>
+          <div className="text-sm text-gray-600">지도의 핀을 클릭하여 게임 정보를 확인하세요</div>
         </div>
       )}
 
       {/* 모달들 */}
-      <GameModal
-        game={selectedGame}
-        onClose={() => setSelectedGame(null)}
-      />
+      <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />
 
       <CreateGameModal
         isOpen={isCreateModalOpen}
@@ -160,4 +149,3 @@ export default function MapPage() {
     </div>
   );
 }
-

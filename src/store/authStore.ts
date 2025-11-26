@@ -6,6 +6,7 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  getAuth: () => User | null;
   setAuth: (user: User, token: string) => void;
   logout: () => void;
   updateUserLocation: (latitude: number, longitude: number) => void;
@@ -13,10 +14,11 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
+      getAuth: () => get().user,
       setAuth: (user, token) =>
         set({
           user,
@@ -36,7 +38,6 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-    }
-  )
+    },
+  ),
 );
-

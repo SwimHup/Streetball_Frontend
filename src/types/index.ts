@@ -1,6 +1,8 @@
+import { LoginRequest, LoginResponse, LoginCredentials } from './auth.ts';
+export type { LoginRequest, LoginResponse, LoginCredentials };
+
 export interface User {
   id: number;
-  email: string;
   name: string;
   latitude?: number;
   longitude?: number;
@@ -34,21 +36,8 @@ export interface Location {
   longitude: number;
 }
 
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
 export interface RegisterData {
   email: string;
   password: string;
   name: string;
 }
-
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
-

@@ -1,18 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '@/apis/authApi';
-import { useAuthStore } from '@/store/authStore';
 import { LoginCredentials } from '@/types';
+import { AxiosError } from 'axios';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [location, setLocation] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
 
   const [formData, setFormData] = useState<LoginCredentials>({
-    email: '',
+    name: '',
     password: '',
+    locationLat: 0,
+    locationLng: 0,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,17 +26,47 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const response = await authApi.login(formData);
-      if (response.success && response.data) {
-        setAuth(response.data.user, response.data.token);
-        navigate('/');
+      const response = await authApi.login({
+        ...formData,
+        locationLat: location.latitude,
+        locationLng: location.longitude,
+      });
+
+      // 토큰을 localStorage에 저장
+      localStorage.setItem('token', response.token);
+
+      // 사용자 정보도 저장 (필요한 경우)
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          userId: response.userId,
+          name: response.name,
+          hasBall: response.hasBall,
+          locationLat: response.locationLat,
+          locationLng: response.locationLng,
+        }),
+      );
+
+      navigate('/');
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message || '로그인에 실패했습니다.');
+      } else {
+        setError('로그인에 실패했습니다.');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || '로그인에 실패했습니다.');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      setLocation({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      });
+    });
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-500 to-primary-700 px-4">
@@ -48,31 +83,23 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                이메일
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">이메일</label>
               <input
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="input-field"
-                placeholder="your@email.com"
+                placeholder="your nickname"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                비밀번호
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">비밀번호</label>
               <input
                 type="password"
                 value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="input-field"
                 placeholder="••••••••"
                 required
@@ -110,4 +137,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
