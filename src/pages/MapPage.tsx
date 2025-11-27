@@ -4,10 +4,13 @@ import { useGameStore } from '@/store/gameStore';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useKakaoMap } from '@/hooks/useKakaoMap';
 import { gameApi } from '@/apis/gameApi';
-import { authApi } from '@/apis/authApi';
 import GameModal from '@/components/GameModal';
 import CreateGameModal from '@/components/CreateGameModal';
 import { useNavigate } from 'react-router-dom';
+
+// Note: 실제 타입 정의 파일 (types.ts)이 필요할 수 있습니다.
+// interface Location { latitude: number; longitude: number; }
+// interface Game { id: number; latitude: number; longitude: number; /* ... other props */ }
 
 export default function MapPage() {
   const { user, logout } = useAuthStore();
@@ -26,16 +29,8 @@ export default function MapPage() {
 
   // 위치 업데이트 및 근처 게임 가져오기
   useEffect(() => {
+    // location이 null이거나 아직 로드되지 않은 상태일 수 있으므로 return 조건 유지
     if (!location) return;
-
-    // const updateLocation = async () => {
-    //   try {
-    //     await authApi.updateLocation(location.latitude, location.longitude);
-    //     updateUserLocation(location.latitude, location.longitude);
-    //   } catch (error) {
-    //     console.error('위치 업데이트 실패:', error);
-    //   }
-    // };
 
     const fetchNearbyGames = async () => {
       try {
@@ -53,12 +48,14 @@ export default function MapPage() {
       }
     };
 
-    // updateLocation();
     fetchNearbyGames();
   }, [location]);
 
   // 지도에 마커 추가
   useEffect(() => {
+    // 지도 객체(map)가 useKakaoMap에서 생성되면 자동으로 addMarkers를 호출할 수 있습니다.
+    // 하지만 현재 훅 구조에서는 map이 useKakaoMap의 반환값에 포함되어 있지 않으므로,
+    // addMarkers가 내부적으로 map 객체가 준비될 때까지 기다리도록 구현되어야 합니다.
     if (games.length > 0) {
       addMarkers(games, (game) => {
         setSelectedGame(game);
@@ -95,7 +92,11 @@ export default function MapPage() {
 
   return (
     <div className="relative h-screen w-screen">
-      {/* 지도 */}
+      {/* ⚠️ NOTE: id="map" div를 제거하거나 ref={mapRef} div와 합치는 것이 좋습니다. 
+          현재는 useKakaoMap이 ref를 사용하므로 id="map"은 불필요합니다. */}
+      {/* <div id="map" style={{ width: '500px', height: '400px' }}></div> */}
+
+      {/* 지도 컨테이너: ref={mapRef}를 사용합니다. */}
       <div ref={mapRef} className="w-full h-full" />
 
       {/* 상단 헤더 */}
