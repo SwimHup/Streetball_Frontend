@@ -47,21 +47,32 @@ export const useKakaoMap = ({ center, level = 3 }: UseKakaoMapProps) => {
     if (window.kakao && window.kakao.maps) {
       // 카카오맵 SDK가 이미 로드되어 있으면 바로 초기화
       initMap();
-    } else if (window.kakao && !window.kakao.maps) {
-      // window.kakao는 있지만 maps 객체는 아직 준비되지 않은 경우 (로드 중)
-      const checkKakao = setInterval(() => {
-        if (window.kakao.maps) {
-          clearInterval(checkKakao);
-          initMap();
-        }
-      }, 100);
-
-      return () => clearInterval(checkKakao);
     } else {
-      // window.kakao 객체 자체가 없는 경우 (SDK 로드 실패)
-      console.error(
-        '❌ 카카오맵 SDK 로드 실패: window.kakao 객체를 찾을 수 없습니다. (API 키 및 도메인 설정을 확인하세요)',
-      );
+      const scriptId = 'kakao-map-script';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${
+          import.meta.env.VITE_KAKAO_MAP_API_KEY
+        }&autoload=false`;
+        script.async = true;
+        script.onload = () => {
+          window.kakao.maps.load(() => {
+            initMap();
+          });
+        };
+        document.head.appendChild(script);
+      } else {
+        const checkKakao = setInterval(() => {
+          if (window.kakao && window.kakao.maps) {
+            clearInterval(checkKakao);
+            window.kakao.maps.load(() => {
+              initMap();
+            });
+          }
+        }, 100);
+        return () => clearInterval(checkKakao);
+      }
     }
   }, [map]); // map이 null일 때만 실행되도록 의존성 배열에 map 추가
 

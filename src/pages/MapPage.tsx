@@ -91,16 +91,9 @@ export default function MapPage() {
   };
 
   return (
-    <div className="relative h-screen w-screen">
-      {/* ⚠️ NOTE: id="map" div를 제거하거나 ref={mapRef} div와 합치는 것이 좋습니다. 
-          현재는 useKakaoMap이 ref를 사용하므로 id="map"은 불필요합니다. */}
-      {/* <div id="map" style={{ width: '500px', height: '400px' }}></div> */}
-
-      {/* 지도 컨테이너: ref={mapRef}를 사용합니다. */}
-      <div ref={mapRef} className="w-full h-full" />
-
+    <div className="relative h-screen w-screen overflow-hidden">
       {/* 상단 헤더 */}
-      <div className="absolute top-0 left-0 right-0 bg-white shadow-md p-4 flex items-center justify-between">
+      <div className="absolute top-0 left-0 right-0 bg-white shadow-md p-4 flex items-center justify-between z-10">
         <div>
           <h1 className="text-xl font-bold text-gray-900">🏀 Streetball</h1>
           <p className="text-sm text-gray-600">{user?.name}님 환영합니다</p>
@@ -109,6 +102,9 @@ export default function MapPage() {
           로그아웃
         </button>
       </div>
+
+      {/* 지도 컨테이너: ref={mapRef}를 사용합니다. */}
+      <div ref={mapRef} className="absolute top-0 left-0 w-full h-full z-0" />
 
       {/* 위치 에러 메시지 */}
       {locationError && (
@@ -119,7 +115,7 @@ export default function MapPage() {
       )}
 
       {/* 하단 액션 버튼들 */}
-      <div className="absolute bottom-8 left-4 right-4 flex gap-2">
+      <div className="absolute bottom-8 left-4 right-4 flex gap-2 z-10">
         <button
           onClick={handleRefresh}
           className="flex-1 bg-white hover:bg-gray-50 text-gray-800 font-semibold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200"
