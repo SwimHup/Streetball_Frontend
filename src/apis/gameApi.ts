@@ -1,5 +1,5 @@
 import api from './axios';
-import { GetNearbyGamesResponse, GameResponse } from '@/types';
+import { GetNearbyGamesResponse, GameResponse, UserGame } from '@/types';
 
 export interface CreateGameData {
   courtId: number;
@@ -52,6 +52,20 @@ export const gameApi = {
   // 게임 삭제 (생성자만)
   deleteGame: async (gameId: number) => {
     const response = await api.delete<Promise<null>>(`/games/${gameId}`);
+    return response.data;
+  },
+
+  // 진행 중인 참여 게임 조회 (모집_중, 모집_완료)
+  getOngoingGames: async (userId: number) => {
+    const response = await api.get<UserGame[]>(
+      `/users/${userId}/games/ongoing`,
+    );
+    return response.data;
+  },
+
+  // 과거 참여 게임 조회 (게임_종료)
+  getPastGames: async (userId: number) => {
+    const response = await api.get<UserGame[]>(`/users/${userId}/games/past`);
     return response.data;
   },
 };
