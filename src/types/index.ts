@@ -1,26 +1,16 @@
 import { LoginRequest, LoginResponse, LoginCredentials } from './auth.ts';
+import { Game, GetNearbyGamesResponse, GameResponse } from './game.ts';
+import { Court } from './court.ts';
+
 export type { LoginRequest, LoginResponse, LoginCredentials };
+export type { Game, GetNearbyGamesResponse, GameResponse };
+export type { Court };
 
 export interface User {
   id: number;
   name: string;
   latitude?: number;
   longitude?: number;
-}
-
-export interface Game {
-  id: number;
-  title: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  date: string;
-  time: string;
-  max_players: number;
-  current_players: number;
-  status: 'recruiting' | 'full' | 'completed' | 'cancelled';
-  creator_id: number;
-  created_at: string;
 }
 
 export interface Participation {

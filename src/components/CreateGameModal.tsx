@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { gameApi, CreateGameData } from '@/apis/gameApi';
 import { useGameStore } from '@/store/gameStore';
 import Modal from './Modal';
+import { useCourt } from '@/hooks/useCourt';
+import { useAuthStore } from '@/store/authStore';
 
 interface CreateGameModalProps {
   isOpen: boolean;
@@ -9,23 +11,28 @@ interface CreateGameModalProps {
   userLocation: { latitude: number; longitude: number };
 }
 
-export default function CreateGameModal({
-  isOpen,
-  onClose,
-  userLocation,
-}: CreateGameModalProps) {
+export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { addGame } = useGameStore();
+  const { courts, selectedCourt, setSelectedCourt } = useCourt();
+  const { user } = useAuthStore();
+
+  // 날짜와 시간을 별도로 관리
+  const [date, setDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // YYYY-MM-DD
+  });
+  const [time, setTime] = useState(() => {
+    const now = new Date();
+    return now.toTimeString().slice(0, 5); // HH:MM
+  });
 
   const [formData, setFormData] = useState<CreateGameData>({
-    title: '',
-    description: '',
-    latitude: userLocation.latitude,
-    longitude: userLocation.longitude,
-    date: '',
-    time: '',
-    max_players: 10,
+    courtId: 0,
+    creatorUserId: 0,
+    maxPlayers: 0,
+    scheduledTime: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,21 +41,33 @@ export default function CreateGameModal({
     setError(null);
 
     try {
-      const response = await gameApi.createGame(formData);
+      // 날짜와 시간을 ISO 8601 형식으로 결합 (밀리초 및 타임존 포함)
+      const scheduledDateTime = new Date(`${date}T${time}:00`);
+      const scheduledTime = scheduledDateTime.toISOString(); // "2025-12-01T14:50:00.000Z"
+
+      const gameData = {
+        ...formData,
+        courtId: selectedCourt?.courtId || 0,
+        creatorUserId: user?.id ?? 0,
+        scheduledTime,
+      };
+
+      const response = await gameApi.createGame(gameData);
       if (response.success && response.data) {
         addGame(response.data);
         alert('게임이 생성되었습니다!');
         onClose();
         // 폼 초기화
         setFormData({
-          title: '',
-          description: '',
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude,
-          date: '',
-          time: '',
-          max_players: 10,
+          courtId: 0,
+          creatorUserId: 0,
+          maxPlayers: 0,
+          scheduledTime: '',
         });
+        // 날짜와 시간도 초기화
+        const today = new Date();
+        setDate(today.toISOString().split('T')[0]);
+        setTime(today.toTimeString().slice(0, 5));
       }
     } catch (err: any) {
       setError(err.response?.data?.message || '게임 생성에 실패했습니다.');
@@ -61,63 +80,43 @@ export default function CreateGameModal({
     <Modal isOpen={isOpen} onClose={onClose} title="새 게임 만들기">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            게임 제목
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
+          <label className="block text-sm font-semibold text-gray-700 mb-1">농구장 선택</label>
+          <select
+            value={selectedCourt?.courtId || ''}
+            onChange={(e) => {
+              const court = courts?.find((c) => c.courtId === Number(e.target.value));
+              setSelectedCourt(court || null);
+            }}
             className="input-field"
-            placeholder="예: 강남 3on3 농구"
             required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            설명
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            className="input-field"
-            rows={3}
-            placeholder="게임에 대한 설명을 입력하세요"
-            required
-          />
+          >
+            <option value="">농구장을 선택하세요</option>
+            {courts?.map((court) => (
+              <option key={court.courtId} value={court.courtId}>
+                {court.courtName} {court.isIndoor ? '(실내)' : '(실외)'}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              날짜
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">날짜</label>
             <input
               type="date"
-              value={formData.date}
-              onChange={(e) =>
-                setFormData({ ...formData, date: e.target.value })
-              }
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               className="input-field"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              시간
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">시간</label>
             <input
               type="time"
-              value={formData.time}
-              onChange={(e) =>
-                setFormData({ ...formData, time: e.target.value })
-              }
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
               className="input-field"
               required
             />
@@ -125,15 +124,11 @@ export default function CreateGameModal({
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">
-            최대 인원
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">최대 인원</label>
           <input
             type="number"
-            value={formData.max_players}
-            onChange={(e) =>
-              setFormData({ ...formData, max_players: parseInt(e.target.value) })
-            }
+            value={formData.maxPlayers}
+            onChange={(e) => setFormData({ ...formData, maxPlayers: parseInt(e.target.value) })}
             className="input-field"
             min={2}
             max={20}
@@ -155,11 +150,7 @@ export default function CreateGameModal({
           >
             {loading ? '생성 중...' : '게임 만들기'}
           </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 btn-secondary"
-          >
+          <button type="button" onClick={onClose} className="flex-1 btn-secondary">
             취소
           </button>
         </div>
@@ -167,4 +158,3 @@ export default function CreateGameModal({
     </Modal>
   );
 }
-
