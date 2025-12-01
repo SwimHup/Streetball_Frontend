@@ -47,6 +47,9 @@ export default function LoginPage() {
         }),
       );
 
+      console.log(localStorage.getItem('user'));
+      // TODO : 여기에 위치 정보 보내는 API 추가하면 될듯
+
       navigate('/');
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
@@ -83,13 +86,13 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">이메일</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">이름</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="input-field"
-                placeholder="your nickname"
+                placeholder="홍길동"
                 required
               />
             </div>

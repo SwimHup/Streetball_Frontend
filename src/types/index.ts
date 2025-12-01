@@ -37,7 +37,7 @@ export interface Location {
 }
 
 export interface RegisterData {
-  email: string;
-  password: string;
   name: string;
+  password: string;
+  hasBall: boolean;
 }
