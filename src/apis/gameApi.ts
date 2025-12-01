@@ -46,9 +46,18 @@ export const gameApi = {
     return response.data;
   },
 
-  // 게임 나가기
-  leaveGame: async (gameId: number) => {
-    const response = await api.post<GameResponse>(`/games/${gameId}/leave`);
+  // 게임 나가기 (204 응답 시 게임이 삭제되어 null 반환)
+  leaveGame: async (
+    gameId: number,
+    userId: number,
+  ): Promise<GameResponse | null> => {
+    const response = await api.delete<GameResponse>(
+      `/games/${gameId}/leave?userId=${userId}`,
+    );
+    // 204 No Content인 경우 null 반환 (게임 삭제됨)
+    if (response.status === 204) {
+      return null;
+    }
     return response.data;
   },
 
