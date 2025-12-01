@@ -84,14 +84,28 @@ export default function MyPage() {
   };
 
   const handleLeaveGame = async (gameId: number) => {
+    if (!user) return;
     if (!confirm('정말 게임 참여를 취소하시겠습니까?')) return;
 
     try {
-      await gameApi.leaveGame(gameId);
-      alert('게임 참여가 취소되었습니다.');
+      const response = await gameApi.leaveGame(gameId, user.id);
+      
+      // 204 응답이면 게임이 삭제된 것
+      if (!response) {
+        alert('게임이 삭제되었습니다.');
+      } else {
+        alert('게임 참여가 취소되었습니다.');
+      }
+      
       loadData(); // 데이터 새로고침
     } catch (err: any) {
-      alert(err.response?.data?.message || '게임 참여 취소에 실패했습니다.');
+      // 204 No Content 응답도 여기로 올 수 있음
+      if (err.response?.status === 204) {
+        alert('게임이 삭제되었습니다.');
+        loadData();
+      } else {
+        alert(err.response?.data?.message || '게임 참여 취소에 실패했습니다.');
+      }
     }
   };
 
@@ -432,7 +446,7 @@ export default function MyPage() {
                 </div>
                 <button
                     onClick={() => handleLeaveGame(game.gameId)}
-                    className="w-1/5 mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    className="w-1/5 mt-4 px-4 py-2 bg-red-300 text-white rounded-lg hover:bg-red-600"
                   >
                     참여 취소
                   </button>
