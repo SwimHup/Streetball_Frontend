@@ -28,6 +28,7 @@ export default function CourtGamesModal({
 
   const fetchCourtGames = async () => {
     const courtGames = await courtApi.getCourtGames(court?.courtId || 0);
+    console.log('courtGames', courtGames);
     setCourtGames(courtGames);
   };
 
@@ -103,7 +104,11 @@ export default function CourtGamesModal({
               {courtGames.map((game) => {
                 const isHost = user?.name === game.hostName;
                 const isFull = game.currentPlayers >= game.maxPlayers;
-                const canJoin = !isHost && !isFull && game.status === '모집_중';
+                const canJoin =
+                  !isHost &&
+                  !isFull &&
+                  game.status === '모집_중' &&
+                  !game.playerNames.includes(user?.name || '');
                 const isSelected = selectedGameId === game.gameId;
 
                 return (
