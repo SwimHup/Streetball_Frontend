@@ -1,22 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authApi } from '@/apis/authApi';
 import { useAuthStore } from '@/store/authStore';
 import { RegisterData } from '@/types';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { location, error: locationError } = useGeolocation();
 
   const [formData, setFormData] = useState<RegisterData>({
-    email: '',
-    password: '',
     name: '',
+    password: '',
+    hasBall: false,
   });
 
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  // 위치 정보가 로드되면 업데이트
+  useEffect(() => {
+    if (location) {
+      setFormData(prev => ({
+        ...prev,
+        // locationLat: location.latitude,
+        // locationLng: location.longitude,
+      }));
+    }
+  }, [location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +46,12 @@ export default function RegisterPage() {
       const response = await authApi.register(formData);
       if (response.success && response.data) {
         setAuth(response.data.user, response.data.token);
-        navigate('/');
+        // navigate('/');
       }
+      setTimeout(() => {
+        alert('회원가입에 성공했습니다.');
+        navigate('/login');
+      }, 1000);
     } catch (err: any) {
       setError(err.response?.data?.message || '회원가입에 실패했습니다.');
     } finally {
@@ -74,22 +91,6 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">
-                이메일
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="input-field"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
                 비밀번호
               </label>
               <input
@@ -119,6 +120,29 @@ export default function RegisterPage() {
                 required
               />
             </div>
+
+            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
+              <input
+                type="checkbox"
+                id="hasBall"
+                checked={formData.hasBall}
+                onChange={(e) =>
+                  setFormData({ ...formData, hasBall: e.target.checked })
+                }
+                className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 cursor-pointer"
+              />
+              <label htmlFor="hasBall" className="text-sm font-semibold text-gray-700 cursor-pointer">
+                🏀 공을 가지고 있습니다
+              </label>
+            </div>
+
+            {locationError && (
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-700">
+                  📍 위치 정보를 가져올 수 없습니다. 기본 위치로 설정됩니다.
+                </p>
+              </div>
+            )}
 
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
