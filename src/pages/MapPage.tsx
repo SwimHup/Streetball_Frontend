@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useGameStore } from '@/store/gameStore';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { useKakaoMap } from '@/hooks/useKakaoMap';
-import { gameApi } from '@/apis/gameApi';
+// import { gameApi } from '@/apis/gameApi';
 import CreateGameModal from '@/components/CreateGameModal';
 import CourtGamesModal from '@/components/CourtGamesModal';
 import { useCourt } from '@/hooks/useCourt';
@@ -12,7 +11,6 @@ import { useCourt } from '@/hooks/useCourt';
 // interface Game { id: number; latitude: number; longitude: number; /* ... other props */ }
 
 export default function MapPage() {
-  const { games, setGames } = useGameStore();
   const { courts, selectedCourt, setSelectedCourt } = useCourt();
   const { location, error: locationError } = useGeolocation(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -25,30 +23,30 @@ export default function MapPage() {
     level: 3,
   });
 
-  // 위치 업데이트 및 근처 게임 가져오기
-  useEffect(() => {
-    // location이 null이거나 아직 로드되지 않은 상태일 수 있으므로 return 조건 유지
-    if (!location) return;
+  // // 위치 업데이트 및 근처 게임 가져오기
+  // useEffect(() => {
+  //   // location이 null이거나 아직 로드되지 않은 상태일 수 있으므로 return 조건 유지
+  //   if (!location) return;
 
-    const fetchNearbyGames = async () => {
-      try {
-        const response = await gameApi.getNearbyGames({
-          latitude: location.latitude,
-          longitude: location.longitude,
-          radius: 5, // 5km 반경
-        });
+  //   const fetchNearbyGames = async () => {
+  //     try {
+  //       const response = await gameApi.getNearbyGames({
+  //         latitude: location.latitude,
+  //         longitude: location.longitude,
+  //         radius: 5, // 5km 반경
+  //       });
 
-        if (response.success && response.data) {
-          setGames(response.data);
-        }
-      } catch (error) {
-        console.error('근처 게임 가져오기 실패:', error);
-      }
-    };
+  //       if (response.success && response.data) {
+  //         setGames(response.data);
+  //       }
+  //     } catch (error) {
+  //       console.error('근처 게임 가져오기 실패:', error);
+  //     }
+  //   };
 
-    fetchNearbyGames();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location]);
+  //   fetchNearbyGames();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [location]);
 
   // 지도에 농구장 마커 추가
   useEffect(() => {
@@ -60,7 +58,6 @@ export default function MapPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courts]);
-
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
@@ -111,7 +108,6 @@ export default function MapPage() {
       {/* 모달들 */}
       <CourtGamesModal
         court={selectedCourt}
-        games={games}
         onClose={() => setSelectedCourt(null)}
         onCreateGame={() => {
           setSelectedCourt(null);

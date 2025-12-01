@@ -15,7 +15,12 @@ export default function Header() {
   return (
     <div className="absolute top-0 left-0 right-0 bg-white shadow-md p-4 flex items-center justify-between z-10">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">🏀 Streetball</h1>
+        <h1
+          className="text-xl font-bold text-gray-900 cursor-pointer"
+          onClick={() => navigate('/')}
+        >
+          🏀 Streetball
+        </h1>
         <p className="text-sm text-gray-600">{user?.name}님 환영합니다</p>
       </div>
       <div className="flex items-center gap-8">

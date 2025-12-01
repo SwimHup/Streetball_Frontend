@@ -3,27 +3,27 @@ import { Court, Game } from '@/types';
 import Modal from './Modal';
 import { useAuthStore } from '@/store/authStore';
 import { gameApi } from '@/apis/gameApi';
+import { courtApi } from '@/apis/courtApi';
 import { useGameStore } from '@/store/gameStore';
 
 interface CourtGamesModalProps {
   court: Court | null;
-  games: Game[];
+  // games: Game[];
   onClose: () => void;
   onCreateGame: () => void;
 }
 
 export default function CourtGamesModal({
   court,
-  games,
+  // games,
   onClose,
   onCreateGame,
 }: CourtGamesModalProps) {
   const { user } = useAuthStore();
-  const { updateGame } = useGameStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const courtGames = court ? games.filter((game) => game.courtId === court.courtId) : [];
+  const [courtGames, setCourtGames] = useState<Game[]>([]);
+  const { updateGame } = useGameStore();
 
   const handleJoinGame = async (gameId: number) => {
     setLoading(true);
@@ -60,6 +60,11 @@ export default function CourtGamesModal({
   useEffect(() => {
     if (court) {
       setError(null);
+      const fetchCourtGames = async () => {
+        const courtGames = await courtApi.getCourtGames(court?.courtId || 0);
+        setCourtGames(courtGames);
+      };
+      fetchCourtGames();
     }
   }, [court]);
 
