@@ -9,8 +9,9 @@ export type { Court };
 export interface User {
   id: number;
   name: string;
-  latitude?: number;
-  longitude?: number;
+  hasBall: boolean;
+  locationLat?: number;
+  locationLng?: number;
 }
 
 export interface Participation {

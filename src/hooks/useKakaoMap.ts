@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Location, Game, Court } from '@/types';
 
+import mapPin from '@/assets/map-pin.svg';
+
 declare global {
   interface Window {
     kakao: any;
@@ -99,7 +101,7 @@ export const useKakaoMap = ({ center, level = 3 }: UseKakaoMapProps) => {
 
     // 새 게임 마커 생성 (빨간색)
     const newMarkers = games.map((game) => {
-      const position = new window.kakao.maps.LatLng(game.latitude, game.longitude);
+      const position = new window.kakao.maps.LatLng(game.locationLat, game.locationLng);
 
       const marker = new window.kakao.maps.Marker({
         position,
@@ -133,10 +135,11 @@ export const useKakaoMap = ({ center, level = 3 }: UseKakaoMapProps) => {
     const newMarkers = courts.map((court) => {
       const position = new window.kakao.maps.LatLng(court.locationLat, court.locationLng);
 
-      // 마커 이미지 생성 (파란색 마커)
-      const imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_blue.png';
-      const imageSize = new window.kakao.maps.Size(36, 37);
-      const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize);
+      // 마커 이미지 생성 (커스텀 마커)
+      const imageSrc = mapPin;
+      const imageSize = new window.kakao.maps.Size(32, 32);
+      const imageOption = { offset: new window.kakao.maps.Point(16, 32) }; // 마커 하단 중앙이 좌표에 위치하도록
+      const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
 
       const marker = new window.kakao.maps.Marker({
         position,

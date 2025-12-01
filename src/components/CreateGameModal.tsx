@@ -16,8 +16,7 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
   const [error, setError] = useState<string | null>(null);
   const { addGame } = useGameStore();
   const { courts, selectedCourt, setSelectedCourt } = useCourt();
-  const { user } = useAuthStore();
-
+  const { user, isAuthenticated } = useAuthStore();
   // 날짜와 시간을 별도로 관리
   const [date, setDate] = useState(() => {
     const today = new Date();
@@ -37,6 +36,13 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 로그인 확인
+    if (!user || !isAuthenticated) {
+      setError('로그인이 필요합니다.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -48,13 +54,14 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
       const gameData = {
         ...formData,
         courtId: selectedCourt?.courtId || 0,
-        creatorUserId: user?.id ?? 0,
+        creatorUserId: user.id,
         scheduledTime,
       };
 
       const response = await gameApi.createGame(gameData);
-      if (response.success && response.data) {
-        addGame(response.data);
+      console.log('response', response);
+      if (response) {
+        addGame(response);
         alert('게임이 생성되었습니다!');
         onClose();
         // 폼 초기화
@@ -78,6 +85,12 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="새 게임 만들기">
+      {!isAuthenticated && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">⚠️ 로그인이 필요합니다.</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">농구장 선택</label>
@@ -145,7 +158,7 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
         <div className="flex gap-2 pt-4">
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !isAuthenticated}
             className="flex-1 btn-primary disabled:bg-gray-400"
           >
             {loading ? '생성 중...' : '게임 만들기'}

@@ -11,11 +11,17 @@ const api = axios.create({
 // 요청 인터셉터
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('auth-storage');
-    if (token) {
-      const authData = JSON.parse(token);
-      if (authData.state?.token) {
-        config.headers.Authorization = `Bearer ${authData.state.token}`;
+    // 로그인, 회원가입 요청에는 토큰을 추가하지 않음
+    const isAuthEndpoint =
+      config.url?.includes('/users/login') || config.url?.includes('/users/signup');
+
+    if (!isAuthEndpoint) {
+      const token = localStorage.getItem('auth-storage');
+      if (token) {
+        const authData = JSON.parse(token);
+        if (authData.state?.token) {
+          config.headers.Authorization = `Bearer ${authData.state.token}`;
+        }
       }
     }
     return config;

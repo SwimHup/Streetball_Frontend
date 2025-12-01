@@ -22,8 +22,8 @@ function App() {
           path="/register"
           element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/" />}
         />
-        <Route path="/" element={<MapPage />} />
-        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/" element={isAuthenticated ? <MapPage /> : <Navigate to="/login" />} />
+        <Route path="/mypage" element={isAuthenticated ? <MyPage /> : <Navigate to="/login" />} />
       </Routes>
     </div>
   );

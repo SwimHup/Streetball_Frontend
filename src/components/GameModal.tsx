@@ -18,21 +18,19 @@ export default function GameModal({ game, onClose }: GameModalProps) {
 
   if (!game) return null;
 
-  const isCreator = user?.id === game.creator_id;
-  const isFull = game.current_players >= game.max_players;
-  const canJoin = !isCreator && !isFull && game.status === 'recruiting';
+  const isCreator = user?.name === game.hostName;
+  const isFull = game.currentPlayers >= game.maxPlayers;
+  const canJoin = !isCreator && !isFull && game.status === '모집_중';
 
   const handleJoin = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await gameApi.joinGame(game.id);
-      if (response.success && response.data) {
-        updateGame(game.id, response.data);
-        alert('게임에 참여했습니다!');
-        onClose();
-      }
+      const response = await gameApi.joinGame(game.gameId);
+      updateGame(game.gameId, response);
+      alert('게임에 참여했습니다!');
+      onClose();
     } catch (err: any) {
       setError(err.response?.data?.message || '참여에 실패했습니다.');
     } finally {
@@ -47,12 +45,10 @@ export default function GameModal({ game, onClose }: GameModalProps) {
     setError(null);
 
     try {
-      const response = await gameApi.deleteGame(game.id);
-      if (response.success) {
-        alert('게임이 삭제되었습니다.');
-        onClose();
-        window.location.reload(); // 간단하게 새로고침
-      }
+      await gameApi.deleteGame(game.gameId);
+      alert('게임이 삭제되었습니다.');
+      onClose();
+      window.location.reload(); // 간단하게 새로고침
     } catch (err: any) {
       setError(err.response?.data?.message || '삭제에 실패했습니다.');
     } finally {
@@ -61,42 +57,59 @@ export default function GameModal({ game, onClose }: GameModalProps) {
   };
 
   return (
-    <Modal isOpen={!!game} onClose={onClose} title={game.title}>
+    <Modal isOpen={!!game} onClose={onClose} title={game.courtName}>
       <div className="space-y-4">
         {/* 상태 배지 */}
         <div className="flex items-center gap-2">
           <span
             className={`px-3 py-1 rounded-full text-sm font-semibold ${
-              game.status === 'recruiting'
+              game.status === '모집_중'
                 ? 'bg-green-100 text-green-800'
                 : 'bg-gray-100 text-gray-800'
             }`}
           >
-            {game.status === 'recruiting' ? '모집 중' : '마감'}
+            {game.status === '모집_중' ? '모집 중' : game.status}
           </span>
           <span className="text-sm text-gray-600">
-            {game.current_players} / {game.max_players}명
+            {game.currentPlayers} / {game.maxPlayers}명
           </span>
         </div>
 
         {/* 게임 정보 */}
         <div className="space-y-2">
           <div>
-            <h3 className="text-sm font-semibold text-gray-700">설명</h3>
-            <p className="text-gray-600">{game.description}</p>
+            <h3 className="text-sm font-semibold text-gray-700">농구장</h3>
+            <p className="text-gray-600">{game.courtName}</p>
           </div>
 
           <div>
             <h3 className="text-sm font-semibold text-gray-700">일시</h3>
             <p className="text-gray-600">
-              {game.date} {game.time}
+              {new Date(game.scheduledTime).toLocaleString('ko-KR')}
             </p>
           </div>
 
           <div>
+            <h3 className="text-sm font-semibold text-gray-700">호스트</h3>
+            <p className="text-gray-600">{game.hostName || '없음'}</p>
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700">심판</h3>
+            <p className="text-gray-600">{game.referee || '없음'}</p>
+          </div>
+
+          {game.playerNames.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700">참가자</h3>
+              <p className="text-gray-600">{game.playerNames.join(', ')}</p>
+            </div>
+          )}
+
+          <div>
             <h3 className="text-sm font-semibold text-gray-700">생성 일시</h3>
             <p className="text-gray-600">
-              {new Date(game.created_at).toLocaleString('ko-KR')}
+              {new Date(game.createdAt).toLocaleString('ko-KR')}
             </p>
           </div>
         </div>

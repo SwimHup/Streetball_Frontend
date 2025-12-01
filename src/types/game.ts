@@ -1,16 +1,17 @@
 export interface Game {
-  id: number;
-  title: string;
-  description: string;
-  latitude: number;
-  longitude: number;
-  date: string;
-  time: string;
-  max_players: number;
-  current_players: number;
-  status: 'recruiting' | 'full' | 'completed' | 'cancelled';
-  creator_id: number;
-  created_at: string;
+  gameId: number;
+  courtId: number;
+  courtName: string;
+  locationLat: number;
+  locationLng: number;
+  scheduledTime: string;
+  maxPlayers: number;
+  currentPlayers: number;
+  status: string;
+  hostName: string | null;
+  referee: string | null;
+  playerNames: string[];
+  createdAt: string;
 }
 
 export interface GetNearbyGamesResponse {
@@ -18,7 +19,5 @@ export interface GetNearbyGamesResponse {
   data: Game[];
 }
 
-export interface GameResponse {
-  success: boolean;
-  data: Game;
-}
+// GameResponse는 Game 객체를 직접 반환
+export type GameResponse = Game;

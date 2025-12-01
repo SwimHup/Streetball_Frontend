@@ -26,7 +26,7 @@ export const gameApi = {
   },
 
   // 게임 생성
-  createGame: async (data: CreateGameData) => {
+  createGame: async (data: CreateGameData): Promise<GameResponse> => {
     const response = await api.post<GameResponse>('/games', data);
     return response.data;
   },
