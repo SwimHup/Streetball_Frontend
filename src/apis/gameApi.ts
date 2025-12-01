@@ -38,8 +38,11 @@ export const gameApi = {
   },
 
   // 게임 참여
-  joinGame: async (gameId: number) => {
-    const response = await api.post<GameResponse>(`/games/${gameId}/join`);
+  joinGame: async (gameId: number, userId: number, role: 'player' | 'referee') => {
+    const response = await api.post<GameResponse>(`/games/${gameId}/join`, {
+      userId: userId,
+      role: role,
+    });
     return response.data;
   },
 
@@ -57,9 +60,7 @@ export const gameApi = {
 
   // 진행 중인 참여 게임 조회 (모집_중, 모집_완료)
   getOngoingGames: async (userId: number) => {
-    const response = await api.get<UserGame[]>(
-      `/users/${userId}/games/ongoing`,
-    );
+    const response = await api.get<UserGame[]>(`/users/${userId}/games/ongoing`);
     return response.data;
   },
 

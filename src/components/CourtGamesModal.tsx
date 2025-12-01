@@ -23,20 +23,29 @@ export default function CourtGamesModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [courtGames, setCourtGames] = useState<Game[]>([]);
+  const [selectedGameId, setSelectedGameId] = useState<number | null>(null);
   const { updateGame } = useGameStore();
 
-  const handleJoinGame = async (gameId: number) => {
+  const fetchCourtGames = async () => {
+    const courtGames = await courtApi.getCourtGames(court?.courtId || 0);
+    setCourtGames(courtGames);
+  };
+
+  const handleJoinGame = async (gameId: number, role: 'player' | 'referee') => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await gameApi.joinGame(gameId);
+      const response = await gameApi.joinGame(gameId, user?.id || 0, role);
       updateGame(gameId, response);
-      alert('게임에 참여했습니다!');
+      alert(role === 'player' ? '게임에 참가자로 참여했습니다!' : '게임에 심판으로 참여했습니다!');
+      setSelectedGameId(null); // 슬라이드 닫기
     } catch (err: any) {
       setError(err.response?.data?.message || '참여에 실패했습니다.');
     } finally {
+      fetchCourtGames();
       setLoading(false);
+      setSelectedGameId(null);
     }
   };
 
@@ -60,10 +69,7 @@ export default function CourtGamesModal({
   useEffect(() => {
     if (court) {
       setError(null);
-      const fetchCourtGames = async () => {
-        const courtGames = await courtApi.getCourtGames(court?.courtId || 0);
-        setCourtGames(courtGames);
-      };
+
       fetchCourtGames();
     }
   }, [court]);
@@ -98,70 +104,97 @@ export default function CourtGamesModal({
                 const isHost = user?.name === game.hostName;
                 const isFull = game.currentPlayers >= game.maxPlayers;
                 const canJoin = !isHost && !isFull && game.status === '모집_중';
+                const isSelected = selectedGameId === game.gameId;
 
                 return (
                   <div
                     key={game.gameId}
-                    className="border border-gray-200 rounded-lg p-3 hover:border-orange-300 transition-colors"
+                    className="relative border border-gray-200 rounded-lg overflow-hidden"
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span
-                            className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                              game.status === '모집_중'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}
-                          >
-                            {game.status === '모집_중' ? '모집 중' : game.status}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            {game.currentPlayers} / {game.maxPlayers}명
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-900 font-medium">
-                          {new Date(game.scheduledTime).toLocaleString('ko-KR', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                        {game.hostName && (
-                          <p className="text-xs text-gray-500 mt-1">호스트: {game.hostName}</p>
-                        )}
+                    {/* 슬라이드 배경 (버튼들) */}
+                    {canJoin && (
+                      <div className="absolute inset-0 bg-gray-100 flex flex-col items-start pl-4 justify-center gap-2">
+                        <button
+                          onClick={() => handleJoinGame(game.gameId, 'player')}
+                          disabled={loading}
+                          className="w-[85px] p-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white text-sm font-semibold rounded transition-colors"
+                        >
+                          참가자 참여
+                        </button>
+                        <button
+                          onClick={() => handleJoinGame(game.gameId, 'referee')}
+                          disabled={loading}
+                          className="w-[85px] p-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-sm font-semibold rounded transition-colors"
+                        >
+                          심판 참여
+                        </button>
                       </div>
-                      <div className="flex gap-1">
-                        {isHost ? (
+                    )}
+
+                    {/* 슬라이드 가능한 콘텐츠 */}
+                    <div
+                      onClick={() => {
+                        if (canJoin) {
+                          setSelectedGameId(isSelected ? null : game.gameId);
+                        }
+                      }}
+                      className={`relative bg-white p-3 transition-transform duration-300 ${
+                        canJoin ? 'cursor-pointer hover:border-orange-300' : ''
+                      } ${isSelected ? 'translate-x-28' : 'translate-x-0'}`}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                                game.status === '모집_중'
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }`}
+                            >
+                              {game.status === '모집_중' ? '모집 중' : game.status}
+                            </span>
+                            <span className="text-xs text-gray-600">
+                              {game.currentPlayers} / {game.maxPlayers}명
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-900 font-medium">
+                            {new Date(game.scheduledTime).toLocaleString('ko-KR', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                          {game.hostName && (
+                            <p className="text-xs text-gray-500 mt-1">호스트: {game.hostName}</p>
+                          )}
+                        </div>
+                        {isHost && (
                           <button
-                            onClick={() => handleDeleteGame(game.gameId)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteGame(game.gameId);
+                            }}
                             disabled={loading}
                             className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white text-xs font-semibold rounded transition-colors"
                           >
                             삭제
                           </button>
-                        ) : canJoin ? (
-                          <button
-                            onClick={() => handleJoinGame(game.gameId)}
-                            disabled={loading}
-                            className="px-3 py-1 btn-primary text-xs disabled:bg-gray-400"
-                          >
-                            참여
-                          </button>
-                        ) : (
+                        )}
+                        {!canJoin && !isHost && (
                           <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded">
                             {isFull ? '마감' : '참여중'}
                           </span>
                         )}
                       </div>
-                    </div>
 
-                    {game.playerNames.length > 0 && (
-                      <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
-                        참가자: {game.playerNames.join(', ')}
-                      </div>
-                    )}
+                      {game.playerNames.length > 0 && (
+                        <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                          참가자: {game.playerNames.join(', ')}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
