@@ -18,7 +18,7 @@ export default function MapPage() {
   const defaultLocation = { latitude: 37.5665, longitude: 126.978 };
   const currentLocation = location || defaultLocation;
 
-  const { mapRef, addMarkers, addCourtMarkers } = useKakaoMap({
+  const { mapRef, addCourtMarkers } = useKakaoMap({
     center: currentLocation,
     level: 3,
   });
