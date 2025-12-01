@@ -59,7 +59,7 @@ export default function MyPage() {
 
   const loadGameReviews = async (gameId: number) => {
     try {
-      const reviews = await reviewApi.getMyReviewsByGame(gameId);
+      const reviews = await reviewApi.getGameReviews(gameId);
       setSelectedGameReviews((prev) => ({
         ...prev,
         [gameId]: reviews,
@@ -312,77 +312,92 @@ export default function MyPage() {
                     </div>
                   </div>
 
-                  {/* 내가 남긴 평점 목록 */}
+                  {/* 이 게임의 평점 목록 */}
                   {expandedGames.has(game.gameId) && (
                     <div className="border-t border-gray-200 p-4 bg-gray-50">
                       <h4 className="font-semibold mb-3">
-                        내가 남긴 평점 (
+                        평점 목록 (
                         {selectedGameReviews[game.gameId]?.length || 0})
                       </h4>
 
                       {selectedGameReviews[game.gameId]?.length === 0 ? (
                         <p className="text-gray-500 text-sm">
-                          아직 남긴 평점이 없습니다.
+                          아직 남겨진 평점이 없습니다.
                         </p>
                       ) : (
                         <div className="space-y-3">
-                          {selectedGameReviews[game.gameId]?.map((review) => (
-                            <div
-                              key={review.ratingId}
-                              className="bg-white p-3 rounded-lg"
-                            >
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <p className="font-medium">
-                                    {review.revieweeName} (
-                                    {review.revieweeRole === 'PLAYER'
-                                      ? '참여자'
-                                      : '심판'}
-                                    )
-                                  </p>
-                                  <div className="flex items-center gap-1 mt-1">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                      <span key={star}>
-                                        {star <= review.rating ? '⭐' : '☆'}
+                          {selectedGameReviews[game.gameId]?.map((review) => {
+                            const isMyReview = review.reviewerName === user.name;
+                            return (
+                              <div
+                                key={review.ratingId}
+                                className="bg-white p-3 rounded-lg"
+                              >
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <p className="font-medium">
+                                        {review.revieweeName} (
+                                        {review.revieweeRole === 'PLAYER'
+                                          ? '참여자'
+                                          : '심판'}
+                                        )
+                                      </p>
+                                      {isMyReview && (
+                                        <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded">
+                                          내 평점
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                      작성자: {review.reviewerName}
+                                    </p>
+                                    <div className="flex items-center gap-1 mt-1">
+                                      {[1, 2, 3, 4, 5].map((star) => (
+                                        <span key={star}>
+                                          {star <= review.rating ? '⭐' : '☆'}
+                                        </span>
+                                      ))}
+                                      <span className="text-sm text-gray-600 ml-2">
+                                        {review.rating}점
                                       </span>
-                                    ))}
-                                    <span className="text-sm text-gray-600 ml-2">
-                                      {review.rating}점
-                                    </span>
+                                    </div>
                                   </div>
+                                  {isMyReview && (
+                                    <div className="flex gap-2">
+                                      <button
+                                        onClick={() => handleEditReview(review)}
+                                        className="text-sm text-orange-600 hover:text-orange-800"
+                                      >
+                                        수정
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          handleDeleteReview(
+                                            review.ratingId,
+                                            game.gameId,
+                                          )
+                                        }
+                                        className="text-sm text-red-600 hover:text-red-800"
+                                      >
+                                        삭제
+                                      </button>
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleEditReview(review)}
-                                    className="text-sm text-orange-600 hover:text-orange-800"
-                                  >
-                                    수정
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleDeleteReview(
-                                        review.ratingId,
-                                        game.gameId,
-                                      )
-                                    }
-                                    className="text-sm text-red-600 hover:text-red-800"
-                                  >
-                                    삭제
-                                  </button>
-                                </div>
-                              </div>
-                              {review.comment && (
-                                <p className="text-sm text-gray-700 mt-2">
-                                  {review.comment}
-                                </p>
-                              )}
-                              <p className="text-xs text-gray-400 mt-2">
-                                {new Date(review.createdAt).toLocaleString(
-                                  'ko-KR',
+                                {review.comment && (
+                                  <p className="text-sm text-gray-700 mt-2">
+                                    {review.comment}
+                                  </p>
                                 )}
-                              </p>
-                            </div>
-                          ))}
+                                <p className="text-xs text-gray-400 mt-2">
+                                  {new Date(review.createdAt).toLocaleString(
+                                    'ko-KR',
+                                  )}
+                                </p>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
