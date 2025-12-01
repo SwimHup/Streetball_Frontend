@@ -27,7 +27,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
     setError(null);
 
     try {
-      const response = await gameApi.joinGame(game.gameId);
+      const response = await gameApi.joinGame(game.gameId, user?.id || 0, 'player');
       updateGame(game.gameId, response);
       alert('게임에 참여했습니다!');
       onClose();

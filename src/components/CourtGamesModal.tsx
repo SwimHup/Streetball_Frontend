@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Court, Game } from '@/types';
+import { useState } from 'react';
+import { Court } from '@/types';
 import Modal from './Modal';
 import { useAuthStore } from '@/store/authStore';
-import { gameApi } from '@/apis/gameApi';
-import { courtApi } from '@/apis/courtApi';
-import { useGameStore } from '@/store/gameStore';
+import { useCourtGames } from '@/hooks/useCourtGames';
+import { useJoinGame, useDeleteGame } from '@/hooks/useGameMutations';
 
 interface CourtGamesModalProps {
   court: Court | null;
@@ -20,60 +19,44 @@ export default function CourtGamesModal({
   onCreateGame,
 }: CourtGamesModalProps) {
   const { user } = useAuthStore();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [courtGames, setCourtGames] = useState<Game[]>([]);
   const [selectedGameId, setSelectedGameId] = useState<number | null>(null);
-  const { updateGame } = useGameStore();
 
-  const fetchCourtGames = async () => {
-    const courtGames = await courtApi.getCourtGames(court?.courtId || 0);
-    console.log('courtGames', courtGames);
-    setCourtGames(courtGames);
-  };
+  // React Query hooks
+  const { data: courtGames = [], isLoading } = useCourtGames(court?.courtId);
+  const joinGameMutation = useJoinGame();
+  const deleteGameMutation = useDeleteGame();
 
   const handleJoinGame = async (gameId: number, role: 'player' | 'referee') => {
-    setLoading(true);
     setError(null);
 
     try {
-      const response = await gameApi.joinGame(gameId, user?.id || 0, role);
-      updateGame(gameId, response);
+      await joinGameMutation.mutateAsync({
+        gameId,
+        userId: user?.id || 0,
+        role,
+      });
       alert(role === 'player' ? '게임에 참가자로 참여했습니다!' : '게임에 심판으로 참여했습니다!');
       setSelectedGameId(null); // 슬라이드 닫기
     } catch (err: any) {
       setError(err.response?.data?.message || '참여에 실패했습니다.');
-    } finally {
-      fetchCourtGames();
-      setLoading(false);
-      setSelectedGameId(null);
     }
   };
 
   const handleDeleteGame = async (gameId: number) => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
 
-    setLoading(true);
     setError(null);
 
     try {
-      await gameApi.deleteGame(gameId);
+      await deleteGameMutation.mutateAsync(gameId);
       alert('게임이 삭제되었습니다.');
-      window.location.reload();
     } catch (err: any) {
       setError(err.response?.data?.message || '삭제에 실패했습니다.');
-    } finally {
-      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (court) {
-      setError(null);
-
-      fetchCourtGames();
-    }
-  }, [court]);
+  const loading = isLoading || joinGameMutation.isPending || deleteGameMutation.isPending;
 
   if (!court) return null;
 

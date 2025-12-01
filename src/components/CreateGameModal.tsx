@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { gameApi, CreateGameData } from '@/apis/gameApi';
-import { useGameStore } from '@/store/gameStore';
+import { CreateGameData } from '@/apis/gameApi';
 import Modal from './Modal';
 import { useCourt } from '@/hooks/useCourt';
 import { useAuthStore } from '@/store/authStore';
+import { useCreateGame } from '@/hooks/useGameMutations';
 
 interface CreateGameModalProps {
   isOpen: boolean;
@@ -12,11 +12,11 @@ interface CreateGameModalProps {
 }
 
 export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProps) {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { addGame } = useGameStore();
   const { courts, selectedCourt, setSelectedCourt } = useCourt();
   const { user, isAuthenticated } = useAuthStore();
+  const createGameMutation = useCreateGame();
+
   // 날짜와 시간을 별도로 관리
   const [date, setDate] = useState(() => {
     const today = new Date();
@@ -43,7 +43,6 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
       return;
     }
 
-    setLoading(true);
     setError(null);
 
     try {
@@ -58,30 +57,27 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
         scheduledTime,
       };
 
-      const response = await gameApi.createGame(gameData);
-      console.log('response', response);
-      if (response) {
-        addGame(response);
-        alert('게임이 생성되었습니다!');
-        onClose();
-        // 폼 초기화
-        setFormData({
-          courtId: 0,
-          creatorUserId: 0,
-          maxPlayers: 0,
-          scheduledTime: '',
-        });
-        // 날짜와 시간도 초기화
-        const today = new Date();
-        setDate(today.toISOString().split('T')[0]);
-        setTime(today.toTimeString().slice(0, 5));
-      }
+      await createGameMutation.mutateAsync(gameData);
+      alert('게임이 생성되었습니다!');
+      onClose();
+
+      // 폼 초기화
+      setFormData({
+        courtId: 0,
+        creatorUserId: 0,
+        maxPlayers: 0,
+        scheduledTime: '',
+      });
+      // 날짜와 시간도 초기화
+      const today = new Date();
+      setDate(today.toISOString().split('T')[0]);
+      setTime(today.toTimeString().slice(0, 5));
     } catch (err: any) {
       setError(err.response?.data?.message || '게임 생성에 실패했습니다.');
-    } finally {
-      setLoading(false);
     }
   };
+
+  const loading = createGameMutation.isPending;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="새 게임 만들기">
