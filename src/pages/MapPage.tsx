@@ -60,7 +60,7 @@ export default function MapPage() {
   }, [courts]);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className="relative h-[100dvh] w-screen overflow-hidden">
       {/* 지도 컨테이너: ref={mapRef}를 사용합니다. */}
       <div ref={mapRef} className="absolute top-0 left-0 w-full h-full z-0" />
 
@@ -73,8 +73,11 @@ export default function MapPage() {
       )}
 
       {/* 하단 액션 버튼들 */}
-      <div className="absolute bottom-8 left-4 right-4 flex gap-2 z-10">
-        <button onClick={() => setIsCreateModalOpen(true)} className="flex-1 btn-primary shadow-lg">
+      <div
+        className="absolute bottom-0 left-0 right-0 p-4 pb-safe z-10"
+        style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+      >
+        <button onClick={() => setIsCreateModalOpen(true)} className="w-full btn-primary shadow-lg">
           ➕ 게임 만들기
         </button>
       </div>
