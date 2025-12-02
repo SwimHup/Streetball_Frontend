@@ -62,47 +62,47 @@ export default function MapPage() {
   return (
     <div className="relative h-[100dvh] w-screen overflow-hidden">
       {/* 지도 컨테이너: ref={mapRef}를 사용합니다. */}
-      <div ref={mapRef} className="absolute top-0 left-0 w-full h-full z-0" />
+      <div ref={mapRef} className="absolute top-0 left-0 z-0 w-full h-full" />
 
       {/* 위치 에러 메시지 */}
       {locationError && (
-        <div className="absolute top-20 left-4 right-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+        <div className="absolute right-4 left-4 top-20 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
           <p className="text-sm text-yellow-800">{locationError}</p>
-          <p className="text-xs text-yellow-700 mt-1">기본 위치(서울 시청)를 사용합니다.</p>
+          <p className="mt-1 text-xs text-yellow-700">기본 위치(서울 시청)를 사용합니다.</p>
         </div>
       )}
 
       {/* 하단 액션 버튼들 */}
       <div
-        className="absolute bottom-0 left-0 right-0 p-4 pb-safe z-10"
+        className="absolute right-0 bottom-0 left-0 z-10 p-4 pb-safe"
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
-        <button onClick={() => setIsCreateModalOpen(true)} className="w-full btn-primary shadow-lg">
+        <button onClick={() => setIsCreateModalOpen(true)} className="w-full shadow-lg btn-primary">
           ➕ 게임 만들기
         </button>
       </div>
 
       {/* 게임 및 농구장 정보 카드 (하단) */}
       {/* {(games.length > 0 || courts.length > 0) && (
-        <div className="absolute bottom-32 left-4 right-4 bg-white rounded-lg shadow-lg p-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="absolute right-4 left-4 bottom-32 p-4 bg-white rounded-lg shadow-lg">
+          <div className="flex justify-between items-center mb-2">
             <h3 className="font-bold text-gray-900">지도 정보</h3>
           </div>
           <div className="space-y-1">
             {courts.length > 0 && (
               <div className="flex items-center text-sm">
-                <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+                <span className="mr-2 w-3 h-3 bg-blue-500 rounded-full"></span>
                 <span className="text-gray-600">농구장 {courts.length}개</span>
               </div>
             )}
             {games.length > 0 && (
               <div className="flex items-center text-sm">
-                <span className="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                <span className="mr-2 w-3 h-3 bg-red-500 rounded-full"></span>
                 <span className="text-gray-600">게임 {games.length}개</span>
               </div>
             )}
           </div>
-          <div className="text-xs text-gray-500 mt-2">
+          <div className="mt-2 text-xs text-gray-500">
             지도의 핀을 클릭하여 자세한 정보를 확인하세요
           </div>
         </div>
