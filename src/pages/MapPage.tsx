@@ -60,9 +60,12 @@ export default function MapPage() {
   }, [courts]);
 
   return (
-    <div className="relative h-[100dvh] w-screen overflow-hidden">
+    <div
+      className="relative h-[100dvh] w-screen overflow-hidden touch-none"
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+    >
       {/* 지도 컨테이너: ref={mapRef}를 사용합니다. */}
-      <div ref={mapRef} className="absolute top-0 left-0 z-0 w-full h-full" />
+      <div ref={mapRef} className="absolute top-0 left-0 z-0 w-full h-full touch-auto" />
 
       {/* 위치 에러 메시지 */}
       {locationError && (
@@ -74,10 +77,13 @@ export default function MapPage() {
 
       {/* 하단 액션 버튼들 */}
       <div
-        className="absolute right-0 bottom-0 left-0 z-10 p-4 pb-safe"
+        className="absolute right-0 bottom-0 left-0 z-10 p-4 pb-safe touch-auto"
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
-        <button onClick={() => setIsCreateModalOpen(true)} className="w-full shadow-lg btn-primary">
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="w-full shadow-lg btn-primary touch-auto"
+        >
           ➕ 게임 만들기
         </button>
       </div>
