@@ -4,6 +4,7 @@ import { gameApi } from '@/apis/gameApi';
 import { useAuthStore } from '@/store/authStore';
 import { useGameStore } from '@/store/gameStore';
 import Modal from './Modal';
+import { formatToKST } from '@/lib/dateUtils';
 
 interface GameModalProps {
   game: Game | null;
@@ -84,11 +85,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
 
           <div>
             <h3 className="text-sm font-semibold text-gray-700">일시</h3>
-            <p className="text-gray-600">
-              {new Date(game.scheduledTime).toLocaleString('ko-KR', {
-                timeZone: 'Asia/Seoul',
-              })}
-            </p>
+            <p className="text-gray-600">{formatToKST(game.scheduledTime)}</p>
           </div>
 
           <div>
@@ -110,11 +107,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
 
           <div>
             <h3 className="text-sm font-semibold text-gray-700">생성 일시</h3>
-            <p className="text-gray-600">
-              {new Date(game.createdAt).toLocaleString('ko-KR', {
-                timeZone: 'Asia/Seoul',
-              })}
-            </p>
+            <p className="text-gray-600">{formatToKST(game.createdAt)}</p>
           </div>
         </div>
 
