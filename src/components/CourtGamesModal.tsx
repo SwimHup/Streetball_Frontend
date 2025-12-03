@@ -28,6 +28,20 @@ export default function CourtGamesModal({
   const joinGameMutation = useJoinGame();
   const deleteGameMutation = useDeleteGame();
 
+  // 게임 필터링 및 정렬: 게임_종료만 제외, 시간 오름차순
+  const filteredGames = courtGames
+    .filter((game) => game.status !== '게임_종료')
+    .sort((a, b) => {
+      // 시간 오름차순 정렬 (가까운 시간부터)
+      const timeA = new Date(
+        a.scheduledTime.endsWith('Z') ? a.scheduledTime : `${a.scheduledTime}Z`,
+      );
+      const timeB = new Date(
+        b.scheduledTime.endsWith('Z') ? b.scheduledTime : `${b.scheduledTime}Z`,
+      );
+      return timeA.getTime() - timeB.getTime();
+    });
+
   const handleJoinGame = async (gameId: number, role: 'player' | 'referee') => {
     setError(null);
 
@@ -68,7 +82,7 @@ export default function CourtGamesModal({
         <div className="flex-shrink-0 p-3 bg-gray-50 rounded-lg">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-600">{court.isIndoor ? '🏢 실내' : '🌤️ 실외'}</span>
-            <span className="text-sm text-gray-600">게임 {courtGames.length}개</span>
+            <span className="text-sm text-gray-600">게임 {filteredGames.length}개</span>
           </div>
         </div>
 
@@ -76,7 +90,7 @@ export default function CourtGamesModal({
         <div className="flex flex-col flex-1 min-h-0">
           <h3 className="flex-shrink-0 mb-2 text-sm font-semibold text-gray-700">진행 중인 게임</h3>
 
-          {courtGames.length === 0 ? (
+          {filteredGames.length === 0 ? (
             <div className="flex flex-col flex-1 justify-center items-center py-8 text-center">
               <p className="mb-4 text-gray-500">아직 게임이 없습니다</p>
               <button onClick={onCreateGame} className="btn-primary">
@@ -85,7 +99,7 @@ export default function CourtGamesModal({
             </div>
           ) : (
             <div className="overflow-y-auto flex-1 space-y-2">
-              {courtGames.map((game) => {
+              {filteredGames.map((game) => {
                 const isHost = user?.name === game.hostName;
                 const isFull = game.currentPlayers >= game.maxPlayers;
                 const isParticipating =
@@ -209,7 +223,7 @@ export default function CourtGamesModal({
 
         {/* 하단 버튼 */}
         <div className="flex flex-shrink-0 gap-2 pt-2">
-          {courtGames.length > 0 && (
+          {filteredGames.length > 0 && (
             <button onClick={onCreateGame} className="flex-1 btn-primary">
               새 게임 만들기
             </button>
