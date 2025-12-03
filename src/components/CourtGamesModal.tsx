@@ -65,7 +65,7 @@ export default function CourtGamesModal({
     <Modal isOpen={!!court} onClose={onClose} title={court.courtName}>
       <div className="flex flex-col flex-1 gap-4 min-h-0">
         {/* 농구장 정보 */}
-        <div className="p-3 bg-gray-50 rounded-lg flex-shrink-0">
+        <div className="flex-shrink-0 p-3 bg-gray-50 rounded-lg">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-600">{court.isIndoor ? '🏢 실내' : '🌤️ 실외'}</span>
             <span className="text-sm text-gray-600">게임 {courtGames.length}개</span>
@@ -74,17 +74,17 @@ export default function CourtGamesModal({
 
         {/* 게임 리스트 */}
         <div className="flex flex-col flex-1 min-h-0">
-          <h3 className="mb-2 text-sm font-semibold text-gray-700 flex-shrink-0">진행 중인 게임</h3>
+          <h3 className="flex-shrink-0 mb-2 text-sm font-semibold text-gray-700">진행 중인 게임</h3>
 
           {courtGames.length === 0 ? (
-            <div className="py-8 text-center flex-1 flex flex-col items-center justify-center">
+            <div className="flex flex-col flex-1 justify-center items-center py-8 text-center">
               <p className="mb-4 text-gray-500">아직 게임이 없습니다</p>
               <button onClick={onCreateGame} className="btn-primary">
                 첫 게임 만들기
               </button>
             </div>
           ) : (
-            <div className="space-y-2 overflow-y-auto flex-1">
+            <div className="overflow-y-auto flex-1 space-y-2">
               {courtGames.map((game) => {
                 const isHost = user?.name === game.hostName;
                 const isFull = game.currentPlayers >= game.maxPlayers;
@@ -157,7 +157,11 @@ export default function CourtGamesModal({
                             <p className="mt-1 text-xs text-gray-500">호스트: {game.hostName}</p>
                           )}
                         </div>
-                        {isHost && (
+                        {game.status === '게임_종료' ? (
+                          <span className="px-3 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded">
+                            게임 종료
+                          </span>
+                        ) : isHost ? (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -168,22 +172,19 @@ export default function CourtGamesModal({
                           >
                             삭제
                           </button>
-                        )}
-                        {!isHost && isParticipating && (
+                        ) : isParticipating ? (
                           <span className="px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded">
                             참여중
                           </span>
-                        )}
-                        {!isHost && !isParticipating && isFull && (
+                        ) : isFull ? (
                           <span className="px-3 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded">
                             마감
                           </span>
-                        )}
-                        {!isHost && !isParticipating && !isFull && game.status !== '모집_중' && (
-                          <span className="px-3 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded">
-                            {game.status.replace('_', ' ')}
+                        ) : game.status === '모집_완료' ? (
+                          <span className="px-3 py-1 text-xs font-semibold text-yellow-600 bg-yellow-50 rounded">
+                            모집 완료
                           </span>
-                        )}
+                        ) : null}
                       </div>
 
                       {game.playerNames.length > 0 && (
@@ -201,13 +202,13 @@ export default function CourtGamesModal({
 
         {/* 에러 메시지 */}
         {error && (
-          <div className="p-3 bg-red-50 rounded-lg border border-red-200 flex-shrink-0">
+          <div className="flex-shrink-0 p-3 bg-red-50 rounded-lg border border-red-200">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
 
         {/* 하단 버튼 */}
-        <div className="flex gap-2 pt-2 flex-shrink-0">
+        <div className="flex flex-shrink-0 gap-2 pt-2">
           {courtGames.length > 0 && (
             <button onClick={onCreateGame} className="flex-1 btn-primary">
               새 게임 만들기
