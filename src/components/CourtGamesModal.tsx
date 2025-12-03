@@ -62,7 +62,7 @@ export default function CourtGamesModal({
 
   return (
     <Modal isOpen={!!court} onClose={onClose} title={court.courtName}>
-      <div className="flex flex-col h-full gap-4">
+      <div className="flex flex-col flex-1 gap-4 min-h-0">
         {/* 농구장 정보 */}
         <div className="p-3 bg-gray-50 rounded-lg flex-shrink-0">
           <div className="flex justify-between items-center mb-2">
