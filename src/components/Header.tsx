@@ -13,7 +13,7 @@ export default function Header() {
   };
 
   return (
-    <div className="absolute top-0 left-0 right-0 bg-white shadow-md p-4 flex items-center justify-between z-10">
+    <div className="flex fixed top-0 right-0 left-0 z-10 justify-between items-center p-4 bg-white shadow-md">
       <div>
         <h1
           className="text-xl font-bold text-gray-900 cursor-pointer"
@@ -23,7 +23,7 @@ export default function Header() {
         </h1>
         <p className="text-sm text-gray-600">{user?.name}님 환영합니다</p>
       </div>
-      <div className="flex items-center gap-8">
+      <div className="flex gap-8 items-center">
         <Link to="/mypage" className="text-sm text-gray-600 hover:text-gray-900">
           <CgProfile className="w-6 h-6" />
         </Link>
