@@ -53,14 +53,26 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
     setError(null);
 
     try {
-      // 날짜와 시간을 한국 시간(KST, UTC+9)으로 ISO 8601 형식으로 결합
-      // 예: "2025-12-01T14:50:00+09:00"
-      const scheduledTime = `${date}T${time}:00+09:00`;
+      // 유효성 검사
+      if (!selectedCourt?.courtId) {
+        setError('농구장을 선택해주세요.');
+        return;
+      }
 
-      const gameData = {
-        ...formData,
-        courtId: selectedCourt?.courtId || 0,
+      if (!formData.maxPlayers || formData.maxPlayers < 2) {
+        setError('최대 인원은 2명 이상이어야 합니다.');
+        return;
+      }
+
+      // 날짜와 시간을 UTC로 변환해서 전송
+      // 사용자가 입력한 한국 시간을 UTC로 변환
+      const localDateTime = new Date(`${date}T${time}:00`);
+      const scheduledTime = localDateTime.toISOString(); // UTC 형식
+
+      const gameData: CreateGameData = {
+        courtId: selectedCourt.courtId,
         creatorUserId: user.id,
+        maxPlayers: formData.maxPlayers,
         scheduledTime,
       };
 

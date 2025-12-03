@@ -60,7 +60,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
     <Modal isOpen={!!game} onClose={onClose} title={game.courtName}>
       <div className="space-y-4">
         {/* 상태 배지 */}
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2 items-center">
           <span
             className={`px-3 py-1 rounded-full text-sm font-semibold ${
               game.status === '모집_중'
@@ -85,7 +85,9 @@ export default function GameModal({ game, onClose }: GameModalProps) {
           <div>
             <h3 className="text-sm font-semibold text-gray-700">일시</h3>
             <p className="text-gray-600">
-              {new Date(game.scheduledTime).toLocaleString('ko-KR')}
+              {new Date(game.scheduledTime).toLocaleString('ko-KR', {
+                timeZone: 'Asia/Seoul',
+              })}
             </p>
           </div>
 
@@ -109,14 +111,16 @@ export default function GameModal({ game, onClose }: GameModalProps) {
           <div>
             <h3 className="text-sm font-semibold text-gray-700">생성 일시</h3>
             <p className="text-gray-600">
-              {new Date(game.createdAt).toLocaleString('ko-KR')}
+              {new Date(game.createdAt).toLocaleString('ko-KR', {
+                timeZone: 'Asia/Seoul',
+              })}
             </p>
           </div>
         </div>
 
         {/* 에러 메시지 */}
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
@@ -128,7 +132,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
               <button
                 onClick={handleDelete}
                 disabled={loading}
-                className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+                className="flex-1 px-4 py-2 font-semibold text-white bg-red-600 rounded-lg transition-colors duration-200 hover:bg-red-700 disabled:bg-gray-400"
               >
                 {loading ? '처리 중...' : '게임 삭제'}
               </button>

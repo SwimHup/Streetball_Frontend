@@ -146,6 +146,7 @@ export default function CourtGamesModal({
                           </div>
                           <p className="text-sm font-medium text-gray-900">
                             {new Date(game.scheduledTime).toLocaleString('ko-KR', {
+                              timeZone: 'Asia/Seoul',
                               month: 'short',
                               day: 'numeric',
                               hour: '2-digit',
