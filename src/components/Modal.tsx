@@ -28,7 +28,7 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
 
       {/* Modal Content */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[70dvh] md:max-h-[85vh] overflow-hidden flex flex-col">
+      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[70dvh] md:max-h-[70vh] overflow-hidden flex flex-col">
         {/* Header */}
         {title && (
           <div className="flex flex-shrink-0 justify-between items-center p-6 border-b">
