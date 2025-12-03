@@ -7,17 +7,11 @@ import ReviewModal from '@/components/ReviewModal';
 
 export default function MyPage() {
   const { user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'completed' | 'ongoing'>(
-    'completed',
-  );
+  const [activeTab, setActiveTab] = useState<'completed' | 'ongoing'>('completed');
   const [completedGames, setCompletedGames] = useState<UserGame[]>([]);
   const [ongoingGames, setOngoingGames] = useState<UserGame[]>([]);
-  const [userRatings, setUserRatings] = useState<UserRatingSummary | null>(
-    null,
-  );
-  const [selectedGameReviews, setSelectedGameReviews] = useState<
-    Record<number, Review[]>
-  >({});
+  const [userRatings, setUserRatings] = useState<UserRatingSummary | null>(null);
+  const [selectedGameReviews, setSelectedGameReviews] = useState<Record<number, Review[]>>({});
   const [expandedGames, setExpandedGames] = useState<Set<number>>(new Set());
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
@@ -89,14 +83,14 @@ export default function MyPage() {
 
     try {
       const response = await gameApi.leaveGame(gameId, user.id);
-      
+
       // 204 응답이면 게임이 삭제된 것
       if (!response) {
         alert('게임이 삭제되었습니다.');
       } else {
         alert('게임 참여가 취소되었습니다.');
       }
-      
+
       loadData(); // 데이터 새로고침
     } catch (err: any) {
       // 204 No Content 응답도 여기로 올 수 있음
@@ -199,39 +193,27 @@ export default function MyPage() {
           {userRatings && (
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-orange-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-600 mb-2">
-                  참여자 평점
-                </h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-2">참여자 평점</h3>
                 <div className="text-3xl font-bold text-orange-600">
                   {userRatings.playScore.toFixed(1)}
                   <span className="text-sm text-gray-500 ml-1">/ 5.0</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  {userRatings.playCount}개의 평가
-                </p>
+                <p className="text-sm text-gray-500 mt-1">{userRatings.playCount}개의 평가</p>
               </div>
 
               <div className="bg-orange-100 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-600 mb-2">
-                  심판 평점
-                </h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-2">심판 평점</h3>
                 <div className="text-3xl font-bold text-orange-600">
                   {userRatings.refScore.toFixed(1)}
                   <span className="text-sm text-gray-500 ml-1">/ 5.0</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">
-                  {userRatings.refCount}개의 평가
-                </p>
+                <p className="text-sm text-gray-500 mt-1">{userRatings.refCount}개의 평가</p>
               </div>
             </div>
           )}
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
-            {error}
-          </div>
-        )}
+        {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
 
         {/* 탭 */}
         <div className="flex gap-2 mb-4">
@@ -284,14 +266,14 @@ export default function MyPage() {
                     <div className="text-sm text-gray-500 space-y-1">
                       <p>
                         📅{' '}
-                        {new Date(game.scheduledTime).toLocaleString('ko-KR')}
+                        {new Date(game.scheduledTime).toLocaleString('ko-KR', {
+                          timeZone: 'Asia/Seoul',
+                        })}
                       </p>
                       <p>
                         👥 {game.currentPlayers} / {game.maxPlayers}
                       </p>
-                      <p className="text-xs mt-2">
-                        참여자: {game.playerNames.join(', ')}
-                      </p>
+                      <p className="text-xs mt-2">참여자: {game.playerNames.join(', ')}</p>
                     </div>
 
                     <div className="flex gap-2 mt-4">
@@ -299,9 +281,7 @@ export default function MyPage() {
                         onClick={() => toggleGameExpand(game.gameId)}
                         className="flex-1 px-4 py-2 bg-orange-200 text-orange-600 rounded-lg hover:bg-orange-300 transition font-medium"
                       >
-                        {expandedGames.has(game.gameId)
-                          ? '평점 숨기기'
-                          : '평점 보기'}
+                        {expandedGames.has(game.gameId) ? '평점 숨기기' : '평점 보기'}
                       </button>
                       <button
                         onClick={() => handleCreateReview(game.gameId)}
@@ -316,32 +296,23 @@ export default function MyPage() {
                   {expandedGames.has(game.gameId) && (
                     <div className="border-t border-gray-200 p-4 bg-gray-50">
                       <h4 className="font-semibold mb-3">
-                        평점 목록 (
-                        {selectedGameReviews[game.gameId]?.length || 0})
+                        평점 목록 ({selectedGameReviews[game.gameId]?.length || 0})
                       </h4>
 
                       {selectedGameReviews[game.gameId]?.length === 0 ? (
-                        <p className="text-gray-500 text-sm">
-                          아직 남겨진 평점이 없습니다.
-                        </p>
+                        <p className="text-gray-500 text-sm">아직 남겨진 평점이 없습니다.</p>
                       ) : (
                         <div className="space-y-3">
                           {selectedGameReviews[game.gameId]?.map((review) => {
                             const isMyReview = review.reviewerName === user.name;
                             return (
-                              <div
-                                key={review.ratingId}
-                                className="bg-white p-3 rounded-lg"
-                              >
+                              <div key={review.ratingId} className="bg-white p-3 rounded-lg">
                                 <div className="flex justify-between items-start mb-2">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2">
                                       <p className="font-medium">
                                         {review.revieweeName} (
-                                        {review.revieweeRole === 'PLAYER'
-                                          ? '참여자'
-                                          : '심판'}
-                                        )
+                                        {review.revieweeRole === 'PLAYER' ? '참여자' : '심판'})
                                       </p>
                                       {isMyReview && (
                                         <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded">
@@ -354,9 +325,7 @@ export default function MyPage() {
                                     </p>
                                     <div className="flex items-center gap-1 mt-1">
                                       {[1, 2, 3, 4, 5].map((star) => (
-                                        <span key={star}>
-                                          {star <= review.rating ? '⭐' : '☆'}
-                                        </span>
+                                        <span key={star}>{star <= review.rating ? '⭐' : '☆'}</span>
                                       ))}
                                       <span className="text-sm text-gray-600 ml-2">
                                         {review.rating}점
@@ -373,10 +342,7 @@ export default function MyPage() {
                                       </button>
                                       <button
                                         onClick={() =>
-                                          handleDeleteReview(
-                                            review.ratingId,
-                                            game.gameId,
-                                          )
+                                          handleDeleteReview(review.ratingId, game.gameId)
                                         }
                                         className="text-sm text-red-600 hover:text-red-800"
                                       >
@@ -386,14 +352,12 @@ export default function MyPage() {
                                   )}
                                 </div>
                                 {review.comment && (
-                                  <p className="text-sm text-gray-700 mt-2">
-                                    {review.comment}
-                                  </p>
+                                  <p className="text-sm text-gray-700 mt-2">{review.comment}</p>
                                 )}
                                 <p className="text-xs text-gray-400 mt-2">
-                                  {new Date(review.createdAt).toLocaleString(
-                                    'ko-KR',
-                                  )}
+                                  {new Date(review.createdAt).toLocaleString('ko-KR', {
+                                    timeZone: 'Asia/Seoul',
+                                  })}
                                 </p>
                               </div>
                             );
@@ -411,10 +375,7 @@ export default function MyPage() {
             </div>
           ) : (
             ongoingGames.map((game) => (
-              <div
-                key={game.gameId}
-                className="bg-white rounded-lg shadow-sm p-4"
-              >
+              <div key={game.gameId} className="bg-white rounded-lg shadow-sm p-4">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1">
                     <h3 className="text-xl font-bold">{game.courtName}</h3>
@@ -436,7 +397,9 @@ export default function MyPage() {
 
                 {/* <div className="text-sm text-gray-500 space-y-1">
                   <p>
-                    📅 {new Date(game.scheduledTime).toLocaleString('ko-KR')}
+                    📅 {new Date(game.scheduledTime).toLocaleString('ko-KR', {
+                      timeZone: 'Asia/Seoul',
+                    })}
                   </p>
                   <p>
                     👥 {game.currentPlayers} / {game.maxPlayers}
@@ -446,26 +409,26 @@ export default function MyPage() {
                   </p>
                 </div> */}
 
-                
                 <div className="flex justify-between items-center mt-4">
-                <div className="text-sm text-gray-500 space-y-1">
-                  <p>
-                    📅 {new Date(game.scheduledTime).toLocaleString('ko-KR')}
-                  </p>
-                  <p>
-                    👥 {game.currentPlayers} / {game.maxPlayers}
-                  </p>
-                  <p className="text-xs mt-2">
-                    참여자: {game.playerNames.join(', ')}
-                  </p>
-                </div>
-                <button
+                  <div className="text-sm text-gray-500 space-y-1">
+                    <p>
+                      📅{' '}
+                      {new Date(game.scheduledTime).toLocaleString('ko-KR', {
+                        timeZone: 'Asia/Seoul',
+                      })}
+                    </p>
+                    <p>
+                      👥 {game.currentPlayers} / {game.maxPlayers}
+                    </p>
+                    <p className="text-xs mt-2">참여자: {game.playerNames.join(', ')}</p>
+                  </div>
+                  <button
                     onClick={() => handleLeaveGame(game.gameId)}
                     className="w-1/5 mt-4 px-4 py-2 bg-red-300 text-white rounded-lg hover:bg-red-600"
                   >
                     참여 취소
                   </button>
-                </div>  
+                </div>
               </div>
             ))
           )}
