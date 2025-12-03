@@ -4,6 +4,7 @@ import Modal from './Modal';
 import { useAuthStore } from '@/store/authStore';
 import { useCourtGames } from '@/hooks/useCourtGames';
 import { useJoinGame, useDeleteGame } from '@/hooks/useGameMutations';
+import { formatToKST } from '@/lib/dateUtils';
 
 interface CourtGamesModalProps {
   court: Court | null;
@@ -92,6 +93,13 @@ export default function CourtGamesModal({
                 const canJoin = !isHost && !isFull && game.status === '모집_중' && !isParticipating;
                 const isSelected = selectedGameId === game.gameId;
 
+                const displayTime = formatToKST(game.scheduledTime, {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+
                 return (
                   <div
                     key={game.gameId}
@@ -144,15 +152,7 @@ export default function CourtGamesModal({
                               {game.currentPlayers} / {game.maxPlayers}명
                             </span>
                           </div>
-                          <p className="text-sm font-medium text-gray-900">
-                            {new Date(game.scheduledTime).toLocaleString('ko-KR', {
-                              timeZone: 'Asia/Seoul',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
+                          <p className="text-sm font-medium text-gray-900">{displayTime}</p>
                           {game.hostName && (
                             <p className="mt-1 text-xs text-gray-500">호스트: {game.hostName}</p>
                           )}

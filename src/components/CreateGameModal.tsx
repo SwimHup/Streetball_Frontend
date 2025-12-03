@@ -73,12 +73,18 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
       const kstDateTime = new Date(year, month - 1, day, hours, minutes, 0);
       const scheduledTime = kstDateTime.toISOString(); // UTC로 변환
 
+      console.log('🕐 입력한 시간:', `${date} ${time}`);
+      console.log('📅 생성된 Date 객체:', kstDateTime);
+      console.log('🌍 UTC로 변환:', scheduledTime);
+
       const gameData: CreateGameData = {
         courtId: selectedCourt.courtId,
         creatorUserId: user.id,
         maxPlayers: formData.maxPlayers,
         scheduledTime,
       };
+
+      console.log('📤 전송할 데이터:', gameData);
 
       await createGameMutation.mutateAsync(gameData);
       alert('게임이 생성되었습니다!');
