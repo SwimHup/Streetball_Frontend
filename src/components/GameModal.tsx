@@ -136,10 +136,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
               >
                 {loading ? '처리 중...' : '게임 삭제'}
               </button>
-              <button
-                onClick={onClose}
-                className="flex-1 btn-secondary"
-              >
+              <button onClick={onClose} className="flex-1 btn-secondary">
                 닫기
               </button>
             </>
@@ -152,18 +149,12 @@ export default function GameModal({ game, onClose }: GameModalProps) {
               >
                 {loading ? '처리 중...' : '참여하기'}
               </button>
-              <button
-                onClick={onClose}
-                className="flex-1 btn-secondary"
-              >
+              <button onClick={onClose} className="flex-1 btn-secondary">
                 취소
               </button>
             </>
           ) : (
-            <button
-              onClick={onClose}
-              className="flex-1 btn-secondary"
-            >
+            <button onClick={onClose} className="flex-1 btn-secondary">
               닫기
             </button>
           )}
@@ -172,4 +163,3 @@ export default function GameModal({ game, onClose }: GameModalProps) {
     </Modal>
   );
 }
-

@@ -65,9 +65,13 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
       }
 
       // 날짜와 시간을 UTC로 변환해서 전송
-      // 사용자가 입력한 한국 시간을 UTC로 변환
-      const localDateTime = new Date(`${date}T${time}:00`);
-      const scheduledTime = localDateTime.toISOString(); // UTC 형식
+      // 사용자가 입력한 시간을 한국 시간(KST)으로 간주하고 UTC로 변환
+      const [year, month, day] = date.split('-').map(Number);
+      const [hours, minutes] = time.split(':').map(Number);
+
+      // 한국 시간대(+09:00)를 명시적으로 지정
+      const kstDateTime = new Date(year, month - 1, day, hours, minutes, 0);
+      const scheduledTime = kstDateTime.toISOString(); // UTC로 변환
 
       const gameData: CreateGameData = {
         courtId: selectedCourt.courtId,
@@ -88,14 +92,14 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
         scheduledTime: '',
       });
       // 날짜와 시간도 초기화 (한국 시간 기준)
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      const hours = String(today.getHours()).padStart(2, '0');
-      const minutes = String(today.getMinutes()).padStart(2, '0');
-      setDate(`${year}-${month}-${day}`);
-      setTime(`${hours}:${minutes}`);
+      const now = new Date();
+      const resetYear = now.getFullYear();
+      const resetMonth = String(now.getMonth() + 1).padStart(2, '0');
+      const resetDay = String(now.getDate()).padStart(2, '0');
+      const resetHours = String(now.getHours()).padStart(2, '0');
+      const resetMinutes = String(now.getMinutes()).padStart(2, '0');
+      setDate(`${resetYear}-${resetMonth}-${resetDay}`);
+      setTime(`${resetHours}:${resetMinutes}`);
     } catch (err: any) {
       setError(err.response?.data?.message || '게임 생성에 실패했습니다.');
     }
