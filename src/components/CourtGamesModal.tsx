@@ -64,8 +64,8 @@ export default function CourtGamesModal({
     <Modal isOpen={!!court} onClose={onClose} title={court.courtName}>
       <div className="space-y-4">
         {/* 농구장 정보 */}
-        <div className="bg-gray-50 rounded-lg p-3">
-          <div className="flex items-center justify-between mb-2">
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-600">{court.isIndoor ? '🏢 실내' : '🌤️ 실외'}</span>
             <span className="text-sm text-gray-600">게임 {courtGames.length}개</span>
           </div>
@@ -73,17 +73,17 @@ export default function CourtGamesModal({
 
         {/* 게임 리스트 */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">진행 중인 게임</h3>
+          <h3 className="mb-2 text-sm font-semibold text-gray-700">진행 중인 게임</h3>
 
           {courtGames.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">아직 게임이 없습니다</p>
+            <div className="py-8 text-center">
+              <p className="mb-4 text-gray-500">아직 게임이 없습니다</p>
               <button onClick={onCreateGame} className="btn-primary">
                 첫 게임 만들기
               </button>
             </div>
           ) : (
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-[40vh] md:max-h-96 overflow-y-auto">
               {courtGames.map((game) => {
                 const isHost = user?.name === game.hostName;
                 const isFull = game.currentPlayers >= game.maxPlayers;
@@ -97,11 +97,11 @@ export default function CourtGamesModal({
                 return (
                   <div
                     key={game.gameId}
-                    className="relative border border-gray-200 rounded-lg overflow-hidden"
+                    className="overflow-hidden relative rounded-lg border border-gray-200"
                   >
                     {/* 슬라이드 배경 (버튼들) */}
                     {canJoin && (
-                      <div className="absolute inset-0 bg-gray-100 flex flex-col items-start pl-4 justify-center gap-2">
+                      <div className="flex absolute inset-0 flex-col gap-2 justify-center items-start pl-4 bg-gray-100">
                         <button
                           onClick={() => handleJoinGame(game.gameId, 'player')}
                           disabled={loading}
@@ -130,9 +130,9 @@ export default function CourtGamesModal({
                         canJoin ? 'cursor-pointer hover:border-orange-300' : ''
                       } ${isSelected ? 'translate-x-28' : 'translate-x-0'}`}
                     >
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex gap-2 items-center mb-1">
                             <span
                               className={`px-2 py-0.5 rounded text-xs font-semibold ${
                                 game.status === '모집_중'
@@ -146,7 +146,7 @@ export default function CourtGamesModal({
                               {game.currentPlayers} / {game.maxPlayers}명
                             </span>
                           </div>
-                          <p className="text-sm text-gray-900 font-medium">
+                          <p className="text-sm font-medium text-gray-900">
                             {new Date(game.scheduledTime).toLocaleString('ko-KR', {
                               month: 'short',
                               day: 'numeric',
@@ -155,7 +155,7 @@ export default function CourtGamesModal({
                             })}
                           </p>
                           {game.hostName && (
-                            <p className="text-xs text-gray-500 mt-1">호스트: {game.hostName}</p>
+                            <p className="mt-1 text-xs text-gray-500">호스트: {game.hostName}</p>
                           )}
                         </div>
                         {isHost && (
@@ -165,20 +165,20 @@ export default function CourtGamesModal({
                               handleDeleteGame(game.gameId);
                             }}
                             disabled={loading}
-                            className="px-3 py-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white text-xs font-semibold rounded transition-colors"
+                            className="px-3 py-1 text-xs font-semibold text-white bg-red-600 rounded transition-colors hover:bg-red-700 disabled:bg-gray-400"
                           >
                             삭제
                           </button>
                         )}
                         {!canJoin && !isHost && (
-                          <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded">
+                          <span className="px-3 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded">
                             {isFull ? '마감' : '참여중'}
                           </span>
                         )}
                       </div>
 
                       {game.playerNames.length > 0 && (
-                        <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                        <div className="pt-2 mt-2 text-xs text-gray-500 border-t border-gray-100">
                           참가자: {game.playerNames.join(', ')}
                         </div>
                       )}
@@ -192,7 +192,7 @@ export default function CourtGamesModal({
 
         {/* 에러 메시지 */}
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
