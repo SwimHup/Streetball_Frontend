@@ -31,7 +31,7 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
       />
 
       {/* Modal Content */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[70dvh] md:max-h-[85vh] overflow-y-auto">
         {/* Header */}
         {title && (
           <div className="flex items-center justify-between p-6 border-b">

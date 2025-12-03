@@ -17,14 +17,21 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
   const { user, isAuthenticated } = useAuthStore();
   const createGameMutation = useCreateGame();
 
-  // 날짜와 시간을 별도로 관리
+  // 날짜와 시간을 별도로 관리 (한국 시간 기준)
   const [date, setDate] = useState(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0]; // YYYY-MM-DD
+    // 로컬 시간 기준으로 YYYY-MM-DD 포맷
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   });
   const [time, setTime] = useState(() => {
     const now = new Date();
-    return now.toTimeString().slice(0, 5); // HH:MM
+    // 로컬 시간 기준으로 HH:MM 포맷
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
   });
 
   const [formData, setFormData] = useState<CreateGameData>({
@@ -46,9 +53,9 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
     setError(null);
 
     try {
-      // 날짜와 시간을 ISO 8601 형식으로 결합 (밀리초 및 타임존 포함)
-      const scheduledDateTime = new Date(`${date}T${time}:00`);
-      const scheduledTime = scheduledDateTime.toISOString(); // "2025-12-01T14:50:00.000Z"
+      // 날짜와 시간을 한국 시간(KST, UTC+9)으로 ISO 8601 형식으로 결합
+      // 예: "2025-12-01T14:50:00+09:00"
+      const scheduledTime = `${date}T${time}:00+09:00`;
 
       const gameData = {
         ...formData,
@@ -68,10 +75,15 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
         maxPlayers: 0,
         scheduledTime: '',
       });
-      // 날짜와 시간도 초기화
+      // 날짜와 시간도 초기화 (한국 시간 기준)
       const today = new Date();
-      setDate(today.toISOString().split('T')[0]);
-      setTime(today.toTimeString().slice(0, 5));
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const hours = String(today.getHours()).padStart(2, '0');
+      const minutes = String(today.getMinutes()).padStart(2, '0');
+      setDate(`${year}-${month}-${day}`);
+      setTime(`${hours}:${minutes}`);
     } catch (err: any) {
       setError(err.response?.data?.message || '게임 생성에 실패했습니다.');
     }
@@ -82,14 +94,14 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="새 게임 만들기">
       {!isAuthenticated && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <div className="p-3 mb-4 bg-yellow-50 rounded-lg border border-yellow-200">
           <p className="text-sm text-yellow-800">⚠️ 로그인이 필요합니다.</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">농구장 선택</label>
+          <label className="block mb-1 text-sm font-semibold text-gray-700">농구장 선택</label>
           <select
             value={selectedCourt?.courtId || ''}
             onChange={(e) => {
@@ -110,7 +122,7 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">날짜</label>
+            <label className="block mb-1 text-sm font-semibold text-gray-700">날짜</label>
             <input
               type="date"
               value={date}
@@ -121,7 +133,7 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">시간</label>
+            <label className="block mb-1 text-sm font-semibold text-gray-700">시간</label>
             <input
               type="time"
               value={time}
@@ -133,7 +145,7 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">최대 인원</label>
+          <label className="block mb-1 text-sm font-semibold text-gray-700">최대 인원</label>
           <input
             type="number"
             value={formData.maxPlayers}
@@ -146,7 +158,7 @@ export default function CreateGameModal({ isOpen, onClose }: CreateGameModalProp
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
