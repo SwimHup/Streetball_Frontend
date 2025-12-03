@@ -80,36 +80,28 @@ export default function ReviewModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">
-          {isEditing ? '평점 수정' : '평점 작성'}
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <Modal isOpen={isOpen} onClose={onClose} title={isEditing ? '평점 수정' : '평점 작성'}>
+      <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+        <div className="overflow-y-auto flex-1 space-y-4">
           {!isEditing && (
             <>
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  평가할 사용자 이름
-                </label>
+                <label className="block mb-2 text-sm font-medium">평가할 사용자 이름</label>
                 <input
                   type="text"
                   value={revieweeName}
                   onChange={(e) => setRevieweeName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">역할</label>
+                <label className="block mb-2 text-sm font-medium">역할</label>
                 <select
                   value={revieweeRole}
-                  onChange={(e) =>
-                    setRevieweeRole(e.target.value as RevieweeRole)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setRevieweeRole(e.target.value as RevieweeRole)}
+                  className="px-3 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="PLAYER">참여자</option>
                   <option value="REFEREE">심판</option>
@@ -119,21 +111,17 @@ export default function ReviewModal({
           )}
 
           {isEditing && (
-            <div className="bg-gray-100 p-3 rounded-lg mb-4">
+            <div className="p-3 mb-4 bg-gray-100 rounded-lg">
               <p className="text-sm">
-                <span className="font-medium">평가 대상:</span>{' '}
-                {existingReview?.revieweeName} (
-                {existingReview?.revieweeRole === 'PLAYER' ? '참여자' : '심판'}
-                )
+                <span className="font-medium">평가 대상:</span> {existingReview?.revieweeName} (
+                {existingReview?.revieweeRole === 'PLAYER' ? '참여자' : '심판'})
               </p>
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              평점 ({rating}점)
-            </label>
-            <div className="flex items-center gap-2">
+            <label className="block mb-2 text-sm font-medium">평점 ({rating}점)</label>
+            <div className="flex gap-2 items-center">
               <input
                 type="range"
                 min="1"
@@ -158,9 +146,7 @@ export default function ReviewModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
-              코멘트 (선택, 최대 500자)
-            </label>
+            <label className="block mb-2 text-sm font-medium">코멘트 (선택, 최대 500자)</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -168,37 +154,30 @@ export default function ReviewModal({
               maxLength={500}
               placeholder="평가에 대한 코멘트를 남겨주세요."
             />
-            <p className="text-sm text-gray-500 mt-1">
-              {comment.length} / 500자
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{comment.length} / 500자</p>
           </div>
 
-          {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+          {error && <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">{error}</div>}
+        </div>
 
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-              disabled={isSubmitting}
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? '제출 중...' : isEditing ? '수정' : '작성'}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="flex flex-shrink-0 gap-3 pt-4 mt-4 border-t">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50"
+            disabled={isSubmitting}
+          >
+            취소
+          </button>
+          <button
+            type="submit"
+            className="flex-1 px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? '제출 중...' : isEditing ? '수정' : '작성'}
+          </button>
+        </div>
+      </form>
     </Modal>
   );
 }
-
