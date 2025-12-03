@@ -50,7 +50,7 @@ export default function Modal({ isOpen, onClose, children, title }: ModalProps) 
         )}
 
         {/* Body */}
-        <div className="overflow-hidden flex-1 p-6">{children}</div>
+        <div className="flex overflow-hidden flex-col flex-1 p-6">{children}</div>
       </div>
     </div>
   );
