@@ -13,6 +13,7 @@ export interface Game {
   playerNames: string[];
   spectatorNames: string[];
   createdAt: string;
+  hasBall: boolean;
 }
 
 export interface GetNearbyGamesResponse {

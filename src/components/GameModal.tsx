@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useGameStore } from '@/store/gameStore';
 import Modal from './Modal';
 import { formatToKST } from '@/lib/dateUtils';
+import XIcon from '@assets/x-circle.svg';
 
 interface GameModalProps {
   game: Game | null;
@@ -18,6 +19,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
   const { updateGame } = useGameStore();
 
   if (!game) return null;
+  console.log(game);
 
   const isCreator = user?.name === game.hostName;
   const isFull = game.currentPlayers >= game.maxPlayers;
@@ -74,6 +76,7 @@ export default function GameModal({ game, onClose }: GameModalProps) {
           <span className="text-sm text-gray-600">
             {game.currentPlayers} / {game.maxPlayers}명
           </span>
+          <span>{game.hasBall ? '🏀' : <XIcon />}</span>
         </div>
 
         {/* 게임 정보 */}
