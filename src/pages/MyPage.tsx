@@ -270,6 +270,11 @@ export default function MyPage() {
                         👥 {game.currentPlayers} / {game.maxPlayers}
                       </p>
                       <p className="mt-2 text-xs">참여자: {game.playerNames.join(', ')}</p>
+                      {game.spectatorNames.length > 0 && (
+                        <p className="mt-0 text-xs text-gray-500">
+                          관전자: {game.spectatorNames.join(', ')}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex gap-2 mt-4">
@@ -408,10 +413,15 @@ export default function MyPage() {
                       👥 {game.currentPlayers} / {game.maxPlayers}
                     </p>
                     <p className="mt-2 text-xs">참여자: {game.playerNames.join(', ')}</p>
+                    {game.spectatorNames.length > 0 && (
+                      <p className="mt-0 text-xs text-gray-500">
+                        관전자: {game.spectatorNames.join(', ')}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={() => handleLeaveGame(game.gameId)}
-                    className="px-4 py-2 mt-4 w-1/5 text-white bg-red-300 rounded-lg hover:bg-red-600"
+                    className="px-4 py-2 mt-4 w-1/5 text-white bg-red-300 rounded-lg transition-all duration-300 hover:bg-red-600"
                   >
                     참여 취소
                   </button>

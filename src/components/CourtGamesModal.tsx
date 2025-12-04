@@ -42,7 +42,7 @@ export default function CourtGamesModal({
       return timeA.getTime() - timeB.getTime();
     });
 
-  const handleJoinGame = async (gameId: number, role: 'player' | 'referee') => {
+  const handleJoinGame = async (gameId: number, role: 'player' | 'referee' | 'spectator') => {
     setError(null);
 
     try {
@@ -51,7 +51,13 @@ export default function CourtGamesModal({
         userId: user?.id || 0,
         role,
       });
-      alert(role === 'player' ? '게임에 참가자로 참여했습니다!' : '게임에 심판으로 참여했습니다!');
+      alert(
+        role === 'player'
+          ? '게임에 참가자로 참여했습니다!'
+          : role === 'referee'
+            ? '게임에 심판으로 참여했습니다!'
+            : '게임에 관전자로 참여했습니다!',
+      );
       setSelectedGameId(null); // 슬라이드 닫기
     } catch (err: any) {
       setError(err.response?.data?.message || '참여에 실패했습니다.');
@@ -125,16 +131,23 @@ export default function CourtGamesModal({
                         <button
                           onClick={() => handleJoinGame(game.gameId, 'player')}
                           disabled={loading}
-                          className="w-[85px] p-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white text-sm font-semibold rounded transition-colors"
+                          className="w-[80px] p-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white text-sm font-semibold rounded transition-colors"
                         >
                           참가자 참여
                         </button>
                         <button
                           onClick={() => handleJoinGame(game.gameId, 'referee')}
                           disabled={loading}
-                          className="w-[85px] p-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-sm font-semibold rounded transition-colors"
+                          className="w-[80px] p-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-sm font-semibold rounded transition-colors"
                         >
                           심판 참여
+                        </button>
+                        <button
+                          onClick={() => handleJoinGame(game.gameId, 'spectator')}
+                          disabled={loading}
+                          className="w-[80px] p-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white text-sm font-semibold rounded transition-colors"
+                        >
+                          관전자 참여
                         </button>
                       </div>
                     )}
@@ -204,6 +217,11 @@ export default function CourtGamesModal({
                       {game.playerNames.length > 0 && (
                         <div className="pt-2 mt-2 text-xs text-gray-500 border-t border-gray-100">
                           참가자: {game.playerNames.join(', ')}
+                        </div>
+                      )}
+                      {game.spectatorNames.length > 0 && (
+                        <div className="pt-0 mt-2 text-xs text-gray-500">
+                          관전자: {game.spectatorNames.join(', ')}
                         </div>
                       )}
                     </div>

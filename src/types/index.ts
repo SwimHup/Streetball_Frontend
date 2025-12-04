@@ -29,6 +29,7 @@ export interface UserGame {
   referee: string | null;
   hostName: string;
   playerNames: string[];
+  spectatorNames: string[];
   locationLat: number;
   locationLng: number;
 }
