@@ -13,6 +13,7 @@ interface ReviewModalProps {
   }) => Promise<void>;
   existingReview?: Review;
   isEditing?: boolean;
+  availableUsers?: string[]; // 선택 가능한 사용자 목록
 }
 
 export default function ReviewModal({
@@ -21,6 +22,7 @@ export default function ReviewModal({
   onSubmit,
   existingReview,
   isEditing = false,
+  availableUsers = [],
 }: ReviewModalProps) {
   const [revieweeName, setRevieweeName] = useState('');
   const [revieweeRole, setRevieweeRole] = useState<RevieweeRole>('PLAYER');
@@ -87,13 +89,19 @@ export default function ReviewModal({
             <>
               <div>
                 <label className="block mb-2 text-sm font-medium">평가할 사용자 이름</label>
-                <input
-                  type="text"
+                <select
                   value={revieweeName}
                   onChange={(e) => setRevieweeName(e.target.value)}
                   className="px-3 py-2 w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
-                />
+                >
+                  <option value="">선택하세요</option>
+                  {availableUsers.map((userName) => (
+                    <option key={userName} value={userName}>
+                      {userName}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
