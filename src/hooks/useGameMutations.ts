@@ -28,7 +28,7 @@ export const useJoinGame = () => {
     }: {
       gameId: number;
       userId: number;
-      role: 'player' | 'referee';
+      role: 'player' | 'referee' | 'spectator';
     }) => gameApi.joinGame(gameId, userId, role),
     onSuccess: (data) => {
       // 해당 농구장의 게임 목록 무효화

@@ -38,7 +38,7 @@ export const gameApi = {
   },
 
   // 게임 참여
-  joinGame: async (gameId: number, userId: number, role: 'player' | 'referee') => {
+  joinGame: async (gameId: number, userId: number, role: 'player' | 'referee' | 'spectator') => {
     const response = await api.post<GameResponse>(`/games/${gameId}/join`, {
       userId: userId,
       role: role,
@@ -47,13 +47,8 @@ export const gameApi = {
   },
 
   // 게임 나가기 (204 응답 시 게임이 삭제되어 null 반환)
-  leaveGame: async (
-    gameId: number,
-    userId: number,
-  ): Promise<GameResponse | null> => {
-    const response = await api.delete<GameResponse>(
-      `/games/${gameId}/leave?userId=${userId}`,
-    );
+  leaveGame: async (gameId: number, userId: number): Promise<GameResponse | null> => {
+    const response = await api.delete<GameResponse>(`/games/${gameId}/leave?userId=${userId}`);
     // 204 No Content인 경우 null 반환 (게임 삭제됨)
     if (response.status === 204) {
       return null;

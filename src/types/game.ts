@@ -11,6 +11,7 @@ export interface Game {
   hostName: string | null;
   referee: string | null;
   playerNames: string[];
+  spectatorNames: string[];
   createdAt: string;
 }
 
