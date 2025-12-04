@@ -443,6 +443,14 @@ export default function MyPage() {
         onSubmit={handleReviewSubmit}
         existingReview={editingReview || undefined}
         isEditing={!!editingReview}
+        availableUsers={(() => {
+          const game = completedGames.find((g) => g.gameId === currentGameId);
+          if (!game) return [];
+          const users = [...game.playerNames];
+          if (game.referee) users.push(game.referee);
+          // 자기 자신은 제외
+          return users.filter((userName) => userName !== user?.name);
+        })()}
       />
     </div>
   );

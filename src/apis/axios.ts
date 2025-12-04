@@ -44,14 +44,20 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
 
-    // 401: 인증 실패 - 로그인 페이지가 아닐 때만 리다이렉트
+    // 401: 인증 실패 (토큰 만료 또는 유효하지 않은 토큰)
     if (status === 401) {
       // 현재 경로가 /login이나 /register가 아닐 때만 리다이렉트
       const currentPath = window.location.pathname;
       if (currentPath !== '/login' && currentPath !== '/register') {
+        // 로컬 스토리지 정리
         localStorage.removeItem('auth-storage');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        
+        // 사용자에게 알림
+        alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+        
+        // 로그인 페이지로 리다이렉트
         window.location.href = '/login';
       }
     }
