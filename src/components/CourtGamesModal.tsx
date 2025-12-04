@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useCourtGames } from '@/hooks/useCourtGames';
 import { useJoinGame, useDeleteGame } from '@/hooks/useGameMutations';
 import { formatToKST } from '@/lib/dateUtils';
+import XIcon from '@/assets/x-circle.svg';
 
 interface CourtGamesModalProps {
   court: Court | null;
@@ -176,7 +177,14 @@ export default function CourtGamesModal({
                               {game.status === '모집_중' ? '모집 중' : game.status}
                             </span>
                             <span className="text-xs text-gray-600">
-                              {game.currentPlayers} / {game.maxPlayers}명
+                              {game.currentPlayers} / {game.maxPlayers}명{' '}
+                            </span>
+                            <span>
+                              {game.hasBall ? (
+                                '🏀'
+                              ) : (
+                                <img src={XIcon} alt="basketball" className="w-4 h-4" />
+                              )}
                             </span>
                           </div>
                           <p className="text-sm font-medium text-gray-900">{displayTime}</p>
