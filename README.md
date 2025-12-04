@@ -121,7 +121,7 @@ npm install
 프로젝트 루트에 `.env` 파일을 생성하고 다음 내용을 추가:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8080/api
+VITE_API_BASE_URL=...
 VITE_KAKAO_MAP_API_KEY=YOUR_KAKAO_MAP_API_KEY
 ```
 
@@ -280,10 +280,6 @@ queryClient.invalidateQueries({ queryKey: ['courtGames'] });
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## 📄 라이센스
-
-MIT License
 
 ## 📧 문의
 
